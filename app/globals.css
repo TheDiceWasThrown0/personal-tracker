@@ -1,0 +1,117 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-nunito);
+  --font-mono: var(--font-nunito);
+  /* Reusing rounded font even for numbers for cuteness */
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+}
+
+:root {
+  /* Dark Autumn / Cozy Cabin Palette */
+  --background: hsl(25 30% 15%);
+  /* #32251a - Deep Espresso/Dark Bark */
+  --foreground: hsl(36 30% 90%);
+  /* #f2ece4 - Warm Cream */
+
+  --card: hsl(25 25% 20%);
+  /* #403022 - Dark Wood */
+  --card-foreground: hsl(36 30% 90%);
+
+  --popover: hsl(25 25% 20%);
+  --popover-foreground: hsl(36 30% 90%);
+
+  --primary: hsl(20 80% 55%);
+  /* #e66a33 - Vibrant Maple Leaf Orange */
+  --primary-foreground: hsl(30 20% 10%);
+
+  --secondary: hsl(42 70% 50%);
+  /* #d9a421 - Deep Gold */
+  --secondary-foreground: hsl(30 20% 10%);
+
+  --muted: hsl(25 20% 25%);
+  --muted-foreground: hsl(36 20% 70%);
+
+  --accent: hsl(85 40% 45%);
+  /* #5c7542 - Muted Moss Green */
+  --accent-foreground: hsl(36 30% 90%);
+
+  --destructive: hsl(0 60% 45%);
+  /* #b82e2e - Deep Red */
+  --destructive-foreground: hsl(36 30% 90%);
+
+  --border: hsl(25 25% 30%);
+  --input: hsl(25 25% 30%);
+  --ring: hsl(20 80% 55%);
+
+  --radius: 1.5rem;
+}
+
+.dark {
+  /* Inherit same dark autumn theme */
+  --background: hsl(25 30% 15%);
+  --foreground: hsl(36 30% 90%);
+
+  --card: hsl(25 25% 20%);
+  --card-foreground: hsl(36 30% 90%);
+
+  --popover: hsl(25 25% 20%);
+  --popover-foreground: hsl(36 30% 90%);
+
+  --primary: hsl(20 80% 55%);
+  --primary-foreground: hsl(30 20% 10%);
+
+  --secondary: hsl(42 70% 50%);
+  --secondary-foreground: hsl(30 20% 10%);
+
+  --muted: hsl(25 20% 25%);
+  --muted-foreground: hsl(36 20% 70%);
+
+  --accent: hsl(85 40% 45%);
+  --accent-foreground: hsl(36 30% 90%);
+
+  --destructive: hsl(0 60% 45%);
+  --destructive-foreground: hsl(36 30% 90%);
+
+  --border: hsl(25 25% 30%);
+  --input: hsl(25 25% 30%);
+  --ring: hsl(20 80% 55%);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  background-image: none;
+}
