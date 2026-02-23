@@ -16,6 +16,7 @@ import LockScreen from "@/components/LockScreen"
 import { CalendarSystem } from "@/components/CalendarSystem"
 import { GlobalDiary } from "@/components/GlobalDiary"
 import { NetWorthHistory } from "@/components/NetWorthHistory"
+import { DailySchedule } from "@/components/DailySchedule"
 import { LayoutGrid, Map, Wallet, GraduationCap, Lock, Activity, Cookie, CalendarDays } from "lucide-react"
 import { cn } from "@/lib/utils"
 // DnD Kit Imports
@@ -226,6 +227,7 @@ export default function Home() {
               <div className="space-y-12">
                 <HeroSection />
                 <StatusDashboard />
+                <DailySchedule />
               </div>
             )}
 
