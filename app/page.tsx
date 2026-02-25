@@ -6,18 +6,15 @@ import { useLocalStorage } from "@/hooks/useLocalStorage"
 import { useSyncedState } from "@/hooks/useSyncedState"
 import { HeroSection } from "@/components/HeroSection"
 import StatusDashboard from "@/components/StatusDashboard"
-import { AssetAllocationChart } from "@/components/AssetAllocationChart"
 import { RoadmapTimeline } from "@/components/RoadmapTimeline"
-import { SkillAcademiaTracker } from "@/components/SkillAcademiaTracker"
 import { DailyRoutine } from "@/components/DailyRoutine"
 import GymTracker from "@/components/GymTracker"
 import { CookieTracker } from "@/components/CookieTracker"
 import LockScreen from "@/components/LockScreen"
 import { CalendarSystem } from "@/components/CalendarSystem"
 import { GlobalDiary } from "@/components/GlobalDiary"
-import { NetWorthHistory } from "@/components/NetWorthHistory"
 import { DailySchedule } from "@/components/DailySchedule"
-import { LayoutGrid, Map, Wallet, GraduationCap, Lock, Activity, Cookie, CalendarDays } from "lucide-react"
+import { LayoutGrid, Map, Lock, Activity, Cookie, CalendarDays, ListTodo } from "lucide-react"
 import { cn } from "@/lib/utils"
 // DnD Kit Imports
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
@@ -74,7 +71,7 @@ function SortableTab({ tab, isActive, onClick }: { tab: any, isActive: boolean, 
   );
 }
 
-type Tab = "dashboard" | "planner" | "roadmap" | "assets" | "fitness" | "skills" | "cookie";
+type Tab = "dashboard" | "routine" | "planner" | "roadmap" | "fitness" | "cookie";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<Tab>("dashboard")
@@ -82,7 +79,7 @@ export default function Home() {
   const [isMounted, setIsMounted] = useState(false)
 
   // State for Tabs Order - Synced
-  const [tabsOrder, setTabsOrder] = useSyncedState<string[]>("tabs_order_v1", ["dashboard", "planner", "roadmap", "assets", "fitness", "skills", "cookie"])
+  const [tabsOrder, setTabsOrder] = useSyncedState<string[]>("tabs_order_v2", ["dashboard", "routine", "planner", "roadmap", "fitness", "cookie"])
 
   useEffect(() => {
     setIsMounted(true)
@@ -96,11 +93,10 @@ export default function Home() {
 
   const tabsPool = {
     dashboard: { id: "dashboard", label: "Overview", icon: LayoutGrid, color: "bg-orange-900/40 text-orange-200 border-orange-500/30 hover:bg-orange-900/60" },
+    routine: { id: "routine", label: "Daily Routine", icon: ListTodo, color: "bg-cyan-900/40 text-cyan-200 border-cyan-500/30 hover:bg-cyan-900/60" },
     planner: { id: "planner", label: "Planner", icon: CalendarDays, color: "bg-purple-900/40 text-purple-200 border-purple-500/30 hover:bg-purple-900/60" },
     roadmap: { id: "roadmap", label: "Path", icon: Map, color: "bg-yellow-900/40 text-yellow-200 border-yellow-500/30 hover:bg-yellow-900/60" },
-    assets: { id: "assets", label: "Treasury", icon: Wallet, color: "bg-emerald-900/40 text-emerald-200 border-emerald-500/30 hover:bg-emerald-900/60" },
     fitness: { id: "fitness", label: "Bio-Infrastructure", icon: Activity, color: "bg-rose-900/40 text-rose-200 border-rose-500/30 hover:bg-rose-900/60" },
-    skills: { id: "skills", label: "Mastery", icon: GraduationCap, color: "bg-blue-900/40 text-blue-200 border-blue-500/30 hover:bg-blue-900/60" },
     cookie: { id: "cookie", label: "Cookies", icon: Cookie, color: "bg-amber-900/40 text-amber-200 border-amber-500/30 hover:bg-amber-900/60" },
   }
 
@@ -227,7 +223,28 @@ export default function Home() {
               <div className="space-y-12">
                 <HeroSection />
                 <StatusDashboard />
-                <DailySchedule />
+              </div>
+            )}
+
+            {activeTab === "routine" && (
+              <div className="space-y-12">
+                <div className="bg-stone-900/40 w-fit px-4 py-2 rounded-full border border-cyan-500/30 shadow-sm mx-auto mb-8 backdrop-blur-sm">
+                  <h2 className="text-xl font-extrabold text-stone-300 flex items-center gap-2">
+                    <ListTodo className="w-5 h-5 text-cyan-400" /> Daily Protocol
+                  </h2>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-8 items-start">
+                  <DailySchedule />
+                  <div className="space-y-6 flex flex-col items-center">
+                    <div className="bg-stone-900/40 w-fit px-4 py-2 rounded-full border border-orange-500/30 shadow-sm backdrop-blur-sm mb-4">
+                      <h2 className="text-xl font-extrabold text-stone-300 flex items-center gap-2">
+                        📅 Daily Habits
+                      </h2>
+                    </div>
+                    <DailyRoutine />
+                  </div>
+                </div>
               </div>
             )}
 
@@ -253,37 +270,6 @@ export default function Home() {
               </div>
             )}
 
-            {activeTab === "assets" && (
-              <div className="max-w-4xl mx-auto space-y-8">
-                <NetWorthHistory />
-
-                <div className="grid md:grid-cols-2 gap-8">
-                  <div className="space-y-6">
-                    <div className="bg-stone-900/40 w-fit px-4 py-2 rounded-full border border-emerald-500/30 shadow-sm backdrop-blur-sm">
-                      <h2 className="text-xl font-extrabold text-stone-300 flex items-center gap-2">
-                        💰 Bells & Assets
-                      </h2>
-                    </div>
-                    <AssetAllocationChart />
-
-                    <div className="p-6 rounded-3xl border border-orange-500/20 bg-orange-900/10 text-sm text-stone-400 font-medium">
-                      <p className="mb-2 uppercase font-black text-orange-400 tracking-wider text-xs">Strategy Note:</p>
-                      <p>Maintain heavy cash position for tuition. DCA into S&P 500. Crypto exposure capped at 15%.</p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-6">
-                    <div className="bg-stone-900/40 w-fit px-4 py-2 rounded-full border border-orange-500/30 shadow-sm backdrop-blur-sm">
-                      <h2 className="text-xl font-extrabold text-stone-300 flex items-center gap-2">
-                        📅 Daily Habits
-                      </h2>
-                    </div>
-                    <DailyRoutine />
-                  </div>
-                </div>
-              </div>
-            )}
-
             {activeTab === "fitness" && (
               <div className="space-y-6">
                 <div className="bg-stone-900/40 w-fit px-4 py-2 rounded-full border border-rose-500/30 shadow-sm mx-auto mb-8 backdrop-blur-sm">
@@ -298,17 +284,6 @@ export default function Home() {
             {activeTab === "cookie" && (
               <div className="space-y-6 mt-12">
                 <CookieTracker />
-              </div>
-            )}
-
-            {activeTab === "skills" && (
-              <div className="space-y-6">
-                <div className="bg-stone-900/40 w-fit px-6 py-3 rounded-full border-2 border-rose-500/20 shadow-[4px_4px_0px_0px_rgba(244,63,94,0.1)] mb-8 mx-auto rotate-1 hover:rotate-0 transition-transform backdrop-blur-sm">
-                  <h2 className="text-2xl font-black text-rose-500 uppercase tracking-tight">
-                    Skill & Academia Interface
-                  </h2>
-                </div>
-                <SkillAcademiaTracker />
               </div>
             )}
 
