@@ -96,6 +96,23 @@ export function NotificationManager() {
         }
     };
 
+    const unsubscribeButtonOnClick = async () => {
+        try {
+            const registration = await navigator.serviceWorker.ready;
+            const subscription = await registration.pushManager.getSubscription();
+            if (subscription) {
+                await subscription.unsubscribe();
+
+                // Optional: We could also tell the backend to remove it from the array here,
+                // but the cron job handles 410 Gone cleanup automatically now anyway.
+            }
+            setIsSubscribed(false);
+            alert("Device unsubscribed. You can now re-enable to get a fresh token.");
+        } catch (e) {
+            console.error("Failed to unsubscribe", e);
+        }
+    };
+
     const saveSchedulesToDb = async (newSchedules: Schedule[]) => {
         try {
             await fetch("/api/push/schedule", {
@@ -157,9 +174,17 @@ export function NotificationManager() {
                         Enable on this Device
                     </button>
                 ) : (
-                    <span className="text-xs text-green-400 bg-green-400/10 px-2 py-1 rounded-full border border-green-400/20">
-                        Enabled on this Device
-                    </span>
+                    <div className="flex items-center gap-2">
+                        <span className="text-xs text-green-400 bg-green-400/10 px-2 py-1 rounded-full border border-green-400/20">
+                            Enabled on this Device
+                        </span>
+                        <button
+                            onClick={unsubscribeButtonOnClick}
+                            className="text-xs text-red-400 hover:text-red-300 underline underline-offset-2 ml-2"
+                        >
+                            Reset Token
+                        </button>
+                    </div>
                 )}
             </div>
 

@@ -76,6 +76,7 @@ export async function GET(req: NextRequest) {
         }
 
         let sentCount = 0;
+        let invalidEndpoints = new Set<string>();
 
         // 4. Check if any schedule matches the current time
         for (const schedule of schedules) {
@@ -89,16 +90,29 @@ export async function GET(req: NextRequest) {
 
                 // Loop over ALL subscribed devices
                 for (const subscription of subscriptions) {
+                    if (invalidEndpoints.has(subscription.endpoint)) continue;
                     try {
                         await webpush.sendNotification(subscription, payload);
                         sentCount++;
                     } catch (pushErr: any) {
                         console.error("Failed to send push to a device:", pushErr);
-                        // Optional: if pushErr.statusCode === 410, it means the device unsubscribed. 
-                        // You could remove this subscription from the database here.
+                        if (pushErr.statusCode === 410 || pushErr.statusCode === 404) {
+                            invalidEndpoints.add(subscription.endpoint);
+                        }
                     }
                 }
             }
+        }
+
+        // Clean up dead subscriptions
+        if (invalidEndpoints.size > 0) {
+            const validSubs = subscriptions.filter(sub => !invalidEndpoints.has(sub.endpoint));
+            await supabase.from("user_data").upsert({
+                key: "push_subscriptions",
+                value: validSubs,
+                updated_at: new Date().toISOString(),
+            });
+            console.log(`Cleaned up ${invalidEndpoints.size} dead subscriptions.`);
         }
 
         return NextResponse.json({ success: true, sent: sentCount });
