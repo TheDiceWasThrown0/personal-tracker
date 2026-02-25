@@ -4,6 +4,7 @@ import { ArrowUpRight, TrendingUp, GraduationCap, Banknote, Edit2, Check, X, Che
 import { useState, useMemo } from "react"
 import { subDays, format, isSameDay, parseISO, isBefore, closestTo } from "date-fns"
 import { Button } from "@/components/ui/button"
+import { NotificationManager } from "./NotificationManager"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -241,6 +242,10 @@ export default function StatusDashboard() {
                         </div>
                     </CardContent>
                 </Card>
+            </div>
+
+            <div className="mt-8">
+                <NotificationManager />
             </div>
         </div>
     )
