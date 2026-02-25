@@ -1,20 +1,41 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useSyncedState } from "@/hooks/useSyncedState"
 import { PencilLine, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export function QuickDump() {
     const [isOpen, setIsOpen] = useState(false)
-    const [content, setContent] = useSyncedState("quick_dump_text", "")
+    const [syncedContent, setSyncedContent] = useSyncedState("quick_dump_text", "")
+    const [localContent, setLocalContent] = useState("")
+
+    // Sync from remote to local when it loads or changes externally
+    useEffect(() => {
+        setLocalContent(prev => {
+            // Only update local if it's vastly different (initial load) to avoid cursor jump
+            if (prev === "" && syncedContent !== "") return syncedContent
+            return prev
+        })
+    }, [syncedContent])
+
+    // Debounce syncing from local to remote
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            if (localContent !== syncedContent) {
+                setSyncedContent(localContent)
+            }
+        }, 500) // 500ms debounce
+
+        return () => clearTimeout(handler)
+    }, [localContent, syncedContent, setSyncedContent])
 
     return (
-        <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
+        <div className="fixed bottom-6 right-6 z-[100] flex flex-col items-end gap-3 pointer-events-none">
             {/* Slide-out Panel */}
             <div
                 className={cn(
-                    "bg-stone-900/90 backdrop-blur-xl border border-stone-800 shadow-2xl rounded-2xl overflow-hidden transition-all duration-300 ease-in-out origin-bottom-right",
+                    "bg-stone-900/95 backdrop-blur-xl border border-stone-700 shadow-2xl rounded-2xl overflow-hidden transition-all duration-300 ease-in-out origin-bottom-right pointer-events-auto",
                     isOpen ? "scale-100 opacity-100 h-80 w-72 md:w-96" : "scale-50 opacity-0 h-0 w-0 pointer-events-none"
                 )}
             >
@@ -30,12 +51,12 @@ export function QuickDump() {
                         <X className="w-4 h-4" />
                     </button>
                 </div>
-                <div className="p-4 h-[calc(100%-3rem)]">
+                <div className="p-4 h-[calc(100%-3rem)] bg-stone-900/50">
                     <textarea
-                        value={content}
-                        onChange={(e) => setContent(e.target.value)}
-                        placeholder="Drop raw thoughts here..."
-                        className="w-full h-full bg-transparent resize-none outline-none text-stone-300 placeholder:text-stone-600 text-sm leading-relaxed"
+                        value={localContent}
+                        onChange={(e) => setLocalContent(e.target.value)}
+                        placeholder="Drop raw thoughts here... (Auto-saves)"
+                        className="w-full h-full bg-transparent resize-none outline-none text-stone-200 placeholder:text-stone-500 text-sm leading-relaxed"
                         autoFocus={isOpen}
                     />
                 </div>
@@ -45,7 +66,7 @@ export function QuickDump() {
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className={cn(
-                    "w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 shadow-xl border",
+                    "w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 shadow-xl border pointer-events-auto",
                     isOpen
                         ? "bg-stone-800 border-stone-700 text-stone-400 rotate-90"
                         : "bg-orange-600 border-orange-500/50 text-white hover:bg-orange-500 hover:scale-105"
