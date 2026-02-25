@@ -13,6 +13,7 @@ interface Schedule {
 const PUBLIC_VAPID_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
 
 export function NotificationManager() {
+    console.log("NotificationManager component is rendering");
     const [isSupported, setIsSupported] = useState(true); // Default to true, will check on mount
     const [isSubscribed, setIsSubscribed] = useState(false);
     const [schedules, setSchedules] = useState<Schedule[]>([]);
@@ -112,8 +113,11 @@ export function NotificationManager() {
     };
 
     if (typeof window !== "undefined" && !isSupported) {
+        console.log("NotificationManager: Push notifications not supported or service worker not found.");
         return <div className="p-4 bg-zinc-900 rounded-lg text-zinc-400">Push notifications are not supported on this device/browser. Add to Home Screen first.</div>;
     }
+
+    console.log("NotificationManager: Rendering main UI. isSubscribed:", isSubscribed);
 
     return (
         <div className="bg-zinc-900/50 rounded-xl p-6 border border-zinc-800">
