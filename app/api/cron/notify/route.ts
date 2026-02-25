@@ -77,7 +77,7 @@ export async function GET(req: NextRequest) {
             if (schedule.enabled && schedule.time === jstString) {
                 // 5. Send Notification
                 const payload = JSON.stringify({
-                    title: "Personal Tracker",
+                    title: "Room 🍂",
                     body: schedule.message,
                 });
 

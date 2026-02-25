@@ -1,6 +1,6 @@
 {
     "name": "Shijun's Room",
-    "short_name": "Shijun's Room",
+    "short_name": "Room",
     "description": "Billionaire Roadmap Tracker",
     "start_url": "/",
     "display": "standalone",
