@@ -2,17 +2,21 @@ import { NextRequest, NextResponse } from "next/server";
 import webpush from "web-push";
 import { createClient } from "@supabase/supabase-js";
 
-// VAPID keys should be generated only once.
-const publicVapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!;
-const privateVapidKey = process.env.VAPID_PRIVATE_KEY!;
-
-webpush.setVapidDetails(
-    "mailto:your-email@example.com", // You can leave this as a placeholder or change it
-    publicVapidKey,
-    privateVapidKey
-);
-
 export async function GET(req: NextRequest) {
+    // VAPID keys setup
+    const publicVapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+    const privateVapidKey = process.env.VAPID_PRIVATE_KEY;
+
+    if (publicVapidKey && privateVapidKey) {
+        webpush.setVapidDetails(
+            "mailto:your-email@example.com",
+            publicVapidKey,
+            privateVapidKey
+        );
+    } else {
+        console.warn("VAPID keys are missing. Push notifications will fail if triggered.");
+    }
+
     // 1. Authenticate the request (Very Important for Cron jobs!)
     const authHeader = req.headers.get("authorization");
     if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
