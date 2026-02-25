@@ -59,15 +59,21 @@ export async function GET(req: NextRequest) {
         const { data: subData, error: subError } = await supabase
             .from("user_data")
             .select("value")
-            .eq("key", "push_subscription")
+            .eq("key", "push_subscriptions")
             .single();
 
         if (subError || !subData) {
-            return NextResponse.json({ message: "No push subscription found" }, { status: 200 });
+            return NextResponse.json({ message: "No push subscriptions found" }, { status: 200 });
         }
 
         const schedules = scheduleData.value as { time: string; message: string; enabled: boolean }[];
-        const subscription = subData.value;
+
+        let subscriptions: any[] = [];
+        if (Array.isArray(subData.value)) {
+            subscriptions = subData.value;
+        } else if (subData.value) {
+            subscriptions = [subData.value]; // Fallback for old data
+        }
 
         let sentCount = 0;
 
@@ -81,11 +87,16 @@ export async function GET(req: NextRequest) {
                     body: schedule.message,
                 });
 
-                try {
-                    await webpush.sendNotification(subscription, payload);
-                    sentCount++;
-                } catch (pushErr) {
-                    console.error("Failed to send push:", pushErr);
+                // Loop over ALL subscribed devices
+                for (const subscription of subscriptions) {
+                    try {
+                        await webpush.sendNotification(subscription, payload);
+                        sentCount++;
+                    } catch (pushErr: any) {
+                        console.error("Failed to send push to a device:", pushErr);
+                        // Optional: if pushErr.statusCode === 410, it means the device unsubscribed. 
+                        // You could remove this subscription from the database here.
+                    }
                 }
             }
         }

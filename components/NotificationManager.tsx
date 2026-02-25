@@ -23,7 +23,30 @@ export function NotificationManager() {
     const checkSubscription = async () => {
         const registration = await navigator.serviceWorker.register("/sw.js");
         const subscription = await registration.pushManager.getSubscription();
-        setIsSubscribed(!!subscription);
+
+        if (subscription) {
+            // Check if THIS specific device's subscription is in the database
+            try {
+                const response = await fetch('/api/user_data?key=push_subscriptions');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.value && Array.isArray(data.value)) {
+                        const exists = data.value.some((sub: any) => sub.endpoint === subscription.endpoint);
+                        setIsSubscribed(exists);
+                    } else if (data.value && data.value.endpoint === subscription.endpoint) {
+                        // Fallback for old single subscription format
+                        setIsSubscribed(true);
+                    } else {
+                        setIsSubscribed(false);
+                    }
+                }
+            } catch (e) {
+                console.error("Could not verify subscription against DB", e);
+                setIsSubscribed(false); // Default to false if DB check fails
+            }
+        } else {
+            setIsSubscribed(false);
+        }
     };
 
     const loadSchedules = async () => {
@@ -63,7 +86,7 @@ export function NotificationManager() {
                     body: JSON.stringify(subscription)
                 });
                 setIsSubscribed(true);
-                alert("Successfully subscribed to notifications!");
+                alert("Successfully enabled notifications for this device!");
             } else {
                 alert("Notification permission denied.");
             }
@@ -131,11 +154,11 @@ export function NotificationManager() {
                         onClick={subscribeButtonOnClick}
                         className="px-4 py-2 bg-zinc-100 text-zinc-900 rounded-md font-medium text-sm hover:bg-white transition-colors"
                     >
-                        Enable Notifications
+                        Enable on this Device
                     </button>
                 ) : (
                     <span className="text-xs text-green-400 bg-green-400/10 px-2 py-1 rounded-full border border-green-400/20">
-                        Active
+                        Enabled on this Device
                     </span>
                 )}
             </div>
