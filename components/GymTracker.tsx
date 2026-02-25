@@ -23,57 +23,79 @@ type WorkoutSplit = {
 }
 
 const SPLIT_ICONS: Record<string, any> = {
-    push: Flame,
-    pull: Dumbbell,
-    legs: Activity,
-    cardio: Timer
+    monday: Flame,
+    tuesday: Dumbbell,
+    wednesday: Timer,
+    thursday: Activity,
+    friday: Flame,
+    saturday: Dumbbell,
+    sunday: Timer
 }
 
 const DEFAULT_SPLITS: WorkoutSplit[] = [
     {
-        id: "push",
-        name: "Push (Chest/Tri/Shoulders)",
+        id: "monday",
+        name: "Monday (Chest/Triceps)",
         color: "text-orange-500",
         exercises: [
             { id: "bench_press", name: "Bench Press", sets: 4, reps: "8-12", weight: "60kg" },
-            { id: "overhead_press", name: "Overhead Press", sets: 3, reps: "10-12", weight: "40kg" },
             { id: "incline_db", name: "Incline DB Press", sets: 3, reps: "10-12", weight: "24kg" },
-            { id: "lat_raise", name: "Lateral Raises", sets: 4, reps: "15-20", weight: "10kg" },
             { id: "tricep_pushdown", name: "Tricep Pushdowns", sets: 3, reps: "12-15", weight: "20kg" },
         ]
     },
     {
-        id: "pull",
-        name: "Pull (Back/Bi)",
+        id: "tuesday",
+        name: "Tuesday (Back/Biceps)",
         color: "text-blue-500",
         exercises: [
-            { id: "deadlift", name: "Deadlift", sets: 3, reps: "5", weight: "100kg" },
             { id: "pullups", name: "Pull Ups", sets: 3, reps: "AMRAP", weight: "BW" },
             { id: "rows", name: "Barbell Rows", sets: 4, reps: "8-10", weight: "60kg" },
-            { id: "face_pulls", name: "Face Pulls", sets: 4, reps: "15-20", weight: "15kg" },
             { id: "curls", name: "Bicep Curls", sets: 3, reps: "10-12", weight: "12kg" },
         ]
     },
     {
-        id: "legs",
-        name: "Legs (Quad/Ham/Calf)",
+        id: "wednesday",
+        name: "Wednesday (Active Recovery)",
+        color: "text-emerald-500",
+        exercises: [
+            { id: "walk", name: "Light Walk & Stretch", sets: 1, reps: "30 mins", weight: "BW" },
+        ]
+    },
+    {
+        id: "thursday",
+        name: "Thursday (Legs/Core)",
         color: "text-red-500",
         exercises: [
             { id: "squat", name: "Squat", sets: 4, reps: "6-8", weight: "80kg" },
             { id: "leg_press", name: "Leg Press", sets: 3, reps: "10-12", weight: "150kg" },
-            { id: "rdl", name: "RDL", sets: 3, reps: "8-10", weight: "80kg" },
-            { id: "extensions", name: "Leg Extensions", sets: 3, reps: "12-15", weight: "40kg" },
-            { id: "calves", name: "Calf Raises", sets: 4, reps: "15-20", weight: "BW" },
+            { id: "plank", name: "Plank", sets: 3, reps: "1 min", weight: "BW" },
         ]
     },
     {
-        id: "cardio",
-        name: "Cardio & Core",
-        color: "text-emerald-500",
+        id: "friday",
+        name: "Friday (Shoulders/Arms)",
+        color: "text-purple-500",
         exercises: [
-            { id: "run", name: "Treadmill Run", sets: 1, reps: "30 mins", weight: "10km/h" },
-            { id: "plank", name: "Plank", sets: 3, reps: "1 min", weight: "BW" },
-            { id: "crunches", name: "Cable Crunches", sets: 3, reps: "15-20", weight: "20kg" },
+            { id: "overhead_press", name: "Overhead Press", sets: 3, reps: "10-12", weight: "40kg" },
+            { id: "lat_raise", name: "Lateral Raises", sets: 4, reps: "15-20", weight: "10kg" },
+            { id: "hammer_curls", name: "Hammer Curls", sets: 3, reps: "10-12", weight: "14kg" },
+        ]
+    },
+    {
+        id: "saturday",
+        name: "Saturday (Full Body)",
+        color: "text-yellow-500",
+        exercises: [
+            { id: "deadlift", name: "Deadlift", sets: 3, reps: "5", weight: "100kg" },
+            { id: "dips", name: "Dips", sets: 3, reps: "8-12", weight: "BW" },
+        ]
+    },
+    {
+        id: "sunday",
+        name: "Sunday (Rest)",
+        color: "text-stone-500",
+        exercises: [
+            { id: "rest", name: "Rest & Prep for Week", sets: 1, reps: "All Day", weight: "0kg" },
         ]
     }
 ]
@@ -87,7 +109,7 @@ export default function GymTracker() {
     // Editing State
     const [isEditing, setIsEditing] = useState(false)
     const [tempSplits, setTempSplits] = useState(splits)
-    const [activeTab, setActiveTab] = useState("push")
+    const [activeTab, setActiveTab] = useState("monday")
 
     // Update temp state when real state changes (if not editing)
     useEffect(() => {
@@ -174,14 +196,14 @@ export default function GymTracker() {
             </CardHeader>
             <CardContent className="space-y-4">
                 <Tabs defaultValue="push" value={activeTab} onValueChange={setActiveTab} className="w-full">
-                    <TabsList className="grid w-full grid-cols-4 bg-stone-900/50 p-1 rounded-xl">
+                    <TabsList className="grid w-full grid-cols-7 bg-stone-900/50 p-1 rounded-xl">
                         {DEFAULT_SPLITS.map(split => (
                             <TabsTrigger
                                 key={split.id}
                                 value={split.id}
                                 className="text-[10px] md:text-xs font-bold uppercase data-[state=active]:bg-stone-700 data-[state=active]:text-rose-400"
                             >
-                                {split.id}
+                                {split.id.substring(0, 3)}
                             </TabsTrigger>
                         ))}
                     </TabsList>
