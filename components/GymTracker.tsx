@@ -35,67 +35,86 @@ const SPLIT_ICONS: Record<string, any> = {
 const DEFAULT_SPLITS: WorkoutSplit[] = [
     {
         id: "monday",
-        name: "Monday (Chest/Triceps)",
-        color: "text-orange-500",
+        name: "Monday (Pull - 厚みと広がりの日)",
+        color: "text-blue-500",
         exercises: [
-            { id: "bench_press", name: "Bench Press", sets: 4, reps: "8-12", weight: "60kg" },
-            { id: "incline_db", name: "Incline DB Press", sets: 3, reps: "10-12", weight: "24kg" },
-            { id: "tricep_pushdown", name: "Tricep Pushdowns", sets: 3, reps: "12-15", weight: "20kg" },
+            { id: "lat_mid", name: "Lat pulldown (back middle)", sets: 3, reps: "10", weight: "59kg" },
+            { id: "lat_wide", name: "Lat pulldown (back wide)", sets: 3, reps: "8", weight: "52kg" },
+            { id: "seated_row", name: "Seated Row (Thickness)", sets: 3, reps: "10", weight: "20~24kg" },
+            { id: "rear_delt", name: "Rear delt", sets: 3, reps: "12", weight: "47.5kg" },
+            { id: "db_curl", name: "Seated dumbbell curl", sets: 3, reps: "10", weight: "12kg" },
+            { id: "hammer_curl", name: "Hammer Curl", sets: 3, reps: "10", weight: "14kg" },
+            { id: "crunch", name: "Abdominal Crunch (Matrix)", sets: 3, reps: "12", weight: "90kg" },
+            { id: "cardio", name: "Incline Walk", sets: 1, reps: "20min", weight: "18% 3.5km/h" },
         ]
     },
     {
         id: "tuesday",
-        name: "Tuesday (Back/Biceps)",
-        color: "text-blue-500",
+        name: "Tuesday (Push - 鎧とメロン肩の日)",
+        color: "text-orange-500",
         exercises: [
-            { id: "pullups", name: "Pull Ups", sets: 3, reps: "AMRAP", weight: "BW" },
-            { id: "rows", name: "Barbell Rows", sets: 4, reps: "8-10", weight: "60kg" },
-            { id: "curls", name: "Bicep Curls", sets: 3, reps: "10-12", weight: "12kg" },
+            { id: "bench", name: "Bench Press", sets: 3, reps: "8", weight: "70kg" },
+            { id: "incline_db", name: "Incline Db Press", sets: 3, reps: "10", weight: "24~26kg" },
+            { id: "ohp", name: "Overhead Press", sets: 3, reps: "10", weight: "16kg" },
+            { id: "pec_fly", name: "Pec fly", sets: 3, reps: "8", weight: "80kg" },
+            { id: "lat_raise", name: "Lateral Raise (Drop)", sets: 3, reps: "Failure", weight: "7,4,0kg" },
+            { id: "rope_push", name: "Rope Pushdown", sets: 3, reps: "10", weight: "24.9kg" },
+            { id: "crunch", name: "Abdominal Crunch (Matrix)", sets: 3, reps: "12", weight: "90kg" },
+            { id: "cardio", name: "Incline Walk", sets: 1, reps: "20min", weight: "18% 3.5km/h" },
         ]
     },
     {
         id: "wednesday",
-        name: "Wednesday (Active Recovery)",
-        color: "text-emerald-500",
+        name: "Wednesday (Rest - 回復の階)",
+        color: "text-stone-500",
         exercises: [
-            { id: "walk", name: "Light Walk & Stretch", sets: 1, reps: "30 mins", weight: "BW" },
+            { id: "rest", name: "Rest & Recover", sets: 1, reps: "All Day", weight: "0kg" },
         ]
     },
     {
         id: "thursday",
-        name: "Thursday (Legs/Core)",
-        color: "text-red-500",
+        name: "Thursday (Pull - 厚みと広がりの日)",
+        color: "text-blue-500",
         exercises: [
-            { id: "squat", name: "Squat", sets: 4, reps: "6-8", weight: "80kg" },
-            { id: "leg_press", name: "Leg Press", sets: 3, reps: "10-12", weight: "150kg" },
-            { id: "plank", name: "Plank", sets: 3, reps: "1 min", weight: "BW" },
+            { id: "lat_mid", name: "Lat pulldown (back middle)", sets: 3, reps: "10", weight: "59kg" },
+            { id: "lat_wide", name: "Lat pulldown (back wide)", sets: 3, reps: "8", weight: "52kg" },
+            { id: "seated_row", name: "Seated Row (Thickness)", sets: 3, reps: "10", weight: "20~24kg" },
+            { id: "rear_delt", name: "Rear delt", sets: 3, reps: "12", weight: "47.5kg" },
+            { id: "db_curl", name: "Seated dumbbell curl", sets: 3, reps: "10", weight: "12kg" },
+            { id: "hammer_curl", name: "Hammer Curl", sets: 3, reps: "10", weight: "14kg" },
+            { id: "crunch", name: "Abdominal Crunch (Matrix)", sets: 3, reps: "12", weight: "90kg" },
+            { id: "cardio", name: "Incline Walk", sets: 1, reps: "20min", weight: "18% 3.5km/h" },
         ]
     },
     {
         id: "friday",
-        name: "Friday (Shoulders/Arms)",
-        color: "text-purple-500",
+        name: "Friday (Rest - 準備の階)",
+        color: "text-stone-500",
         exercises: [
-            { id: "overhead_press", name: "Overhead Press", sets: 3, reps: "10-12", weight: "40kg" },
-            { id: "lat_raise", name: "Lateral Raises", sets: 4, reps: "15-20", weight: "10kg" },
-            { id: "hammer_curls", name: "Hammer Curls", sets: 3, reps: "10-12", weight: "14kg" },
+            { id: "rest_prep", name: "Rest & Carb Up", sets: 1, reps: "All Day", weight: "0kg" },
         ]
     },
     {
         id: "saturday",
-        name: "Saturday (Full Body)",
-        color: "text-yellow-500",
+        name: "Saturday (Push - 鎧とメロン肩の日)",
+        color: "text-orange-500",
         exercises: [
-            { id: "deadlift", name: "Deadlift", sets: 3, reps: "5", weight: "100kg" },
-            { id: "dips", name: "Dips", sets: 3, reps: "8-12", weight: "BW" },
+            { id: "bench", name: "Bench Press", sets: 3, reps: "8", weight: "70kg" },
+            { id: "incline_db", name: "Incline Db Press", sets: 3, reps: "10", weight: "24~26kg" },
+            { id: "ohp", name: "Overhead Press", sets: 3, reps: "10", weight: "16kg" },
+            { id: "pec_fly", name: "Pec fly", sets: 3, reps: "8", weight: "80kg" },
+            { id: "lat_raise", name: "Lateral Raise (Drop)", sets: 3, reps: "Failure", weight: "7,4,0kg" },
+            { id: "rope_push", name: "Rope Pushdown", sets: 3, reps: "10", weight: "24.9kg" },
+            { id: "crunch", name: "Abdominal Crunch (Matrix)", sets: 3, reps: "12", weight: "90kg" },
+            { id: "cardio", name: "Incline Walk", sets: 1, reps: "20min", weight: "18% 3.5km/h" },
         ]
     },
     {
         id: "sunday",
-        name: "Sunday (Rest)",
+        name: "Sunday (Rest & Prep - 抽出と整理の日)",
         color: "text-stone-500",
         exercises: [
-            { id: "rest", name: "Rest & Prep for Week", sets: 1, reps: "All Day", weight: "0kg" },
+            { id: "rest_prep_meal", name: "Rest & Meal Prep", sets: 1, reps: "All Day", weight: "0kg" },
         ]
     }
 ]
@@ -120,6 +139,14 @@ export default function GymTracker() {
     const startEditing = () => {
         setIsEditing(true)
         setTempSplits(splits)
+    }
+
+    const resetToDefault = () => {
+        if (confirm("Are you sure you want to reset your splits to the default program? This will overwrite your current routine.")) {
+            setSplits(DEFAULT_SPLITS)
+            setTempSplits(DEFAULT_SPLITS)
+            setIsEditing(false)
+        }
     }
 
     const saveEditing = () => {
@@ -188,9 +215,14 @@ export default function GymTracker() {
                             <button onClick={cancelEditing} className="p-1 bg-red-500 text-white rounded-full hover:scale-110"><RotateCcw className="w-4 h-4" /></button>
                         </div>
                     ) : (
-                        <button onClick={startEditing} className="bg-stone-800 text-stone-400 p-2 rounded-full border border-stone-700 shadow-sm opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all hover:text-rose-500 hover:border-rose-500/50">
-                            <Edit2 className="w-4 h-4" />
-                        </button>
+                        <div className="flex gap-1">
+                            <button onClick={resetToDefault} className="text-[10px] uppercase font-bold text-stone-500 hover:text-stone-300 mr-2 flex items-center gap-1">
+                                <RotateCcw className="w-3 h-3" /> Reset
+                            </button>
+                            <button onClick={startEditing} className="bg-stone-800 text-stone-400 p-2 rounded-full border border-stone-700 shadow-sm opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all hover:text-rose-500 hover:border-rose-500/50">
+                                <Edit2 className="w-4 h-4" />
+                            </button>
+                        </div>
                     )}
                 </div>
             </CardHeader>
