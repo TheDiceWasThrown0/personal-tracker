@@ -19,7 +19,9 @@ export async function GET(req: NextRequest) {
 
     // 1. Authenticate the request (Very Important for Cron jobs!)
     const authHeader = req.headers.get("authorization");
-    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    const expectedSecret = process.env.CRON_SECRET;
+
+    if (authHeader !== `Bearer ${expectedSecret}` && authHeader !== expectedSecret) {
         console.warn("Unauthorized attempt to access cron route.");
         // In local development, you might want to bypass this, but for production it's critical.
         if (process.env.NODE_ENV === 'production') {
