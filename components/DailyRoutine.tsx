@@ -66,10 +66,10 @@ export function DailyRoutine() {
         // Let's just track if "Yesterday" was perfect.
         // For now, simpler: Count total "Perfect Days".
         // Ensure tasks exist to avoid empty streak increments
-        if (morningTasks.length === 0 && eveningTasks.length === 0) return
+        if (!(morningTasks || []).length && !(eveningTasks || []).length) return
 
-        const allMorning = morningTasks.every(t => completed[`${todayKey}-${t.id}`])
-        const allEvening = eveningTasks.every(t => completed[`${todayKey}-${t.id}`])
+        const allMorning = (morningTasks || []).every(t => (completed || {})[`${todayKey}-${t.id}`])
+        const allEvening = (eveningTasks || []).every(t => (completed || {})[`${todayKey}-${t.id}`])
 
         if (allMorning && allEvening && lastCompletionDate !== todayKey && todayKey !== "") {
             setStreak(s => s + 1)
@@ -81,12 +81,12 @@ export function DailyRoutine() {
         if (isEditing) return
         const key = `${todayKey}-${taskId}`
         setCompleted(prev => ({
-            ...prev,
-            [key]: !prev[key]
+            ...(prev || {}),
+            [key]: !(prev || {})[key]
         }))
     }
 
-    const isCompleted = (taskId: string) => !!completed[`${todayKey}-${taskId}`]
+    const isCompleted = (taskId: string) => !!(completed || {})[`${todayKey}-${taskId}`]
 
     // Editing Handlers
     const startEditing = () => {
@@ -107,11 +107,11 @@ export function DailyRoutine() {
 
     const updateTaskText = (type: 'morning' | 'evening', index: number, text: string) => {
         if (type === 'morning') {
-            const newTasks = [...tempMorning]
+            const newTasks = [...(tempMorning || [])]
             newTasks[index] = { ...newTasks[index], text }
             setTempMorning(newTasks)
         } else {
-            const newTasks = [...tempEvening]
+            const newTasks = [...(tempEvening || [])]
             newTasks[index] = { ...newTasks[index], text }
             setTempEvening(newTasks)
         }
@@ -119,18 +119,18 @@ export function DailyRoutine() {
 
     const removeTask = (type: 'morning' | 'evening', index: number) => {
         if (type === 'morning') {
-            setTempMorning(tempMorning.filter((_, i) => i !== index))
+            setTempMorning((tempMorning || []).filter((_, i) => i !== index))
         } else {
-            setTempEvening(tempEvening.filter((_, i) => i !== index))
+            setTempEvening((tempEvening || []).filter((_, i) => i !== index))
         }
     }
 
     const addTask = (type: 'morning' | 'evening') => {
         const newTask: DailyTask = { id: `task_${Date.now()}`, text: "New Habit", iconName: "Sun", color: "text-stone-400" }
         if (type === 'morning') {
-            setTempMorning([...tempMorning, newTask])
+            setTempMorning([...(tempMorning || []), newTask])
         } else {
-            setTempEvening([...tempEvening, newTask])
+            setTempEvening([...(tempEvening || []), newTask])
         }
     }
 
@@ -168,7 +168,7 @@ export function DailyRoutine() {
                         <Sun className="w-3 h-3" /> Morning Operation
                     </h3>
                     <div className="space-y-2">
-                        {(isEditing ? tempMorning : morningTasks).map((task, i) => {
+                        {(isEditing ? (tempMorning || []) : (morningTasks || [])).map((task, i) => {
                             const Icon = getIcon(task.iconName)
                             return (
                                 <div key={task.id} className="relative group/item">
@@ -220,7 +220,7 @@ export function DailyRoutine() {
                         <Moon className="w-3 h-3" /> Night Shift
                     </h3>
                     <div className="space-y-2">
-                        {(isEditing ? tempEvening : eveningTasks).map((task, i) => {
+                        {(isEditing ? (tempEvening || []) : (eveningTasks || [])).map((task, i) => {
                             const Icon = getIcon(task.iconName)
                             return (
                                 <div key={task.id} className="relative group/item">

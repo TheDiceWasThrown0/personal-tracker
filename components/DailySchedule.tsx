@@ -82,7 +82,9 @@ export function DailySchedule() {
         }
     ]
 
-    const [scheduleItems] = useSyncedState("daily_routine", defaultSchedule)
+    const [scheduleItems] = useSyncedState("daily_schedule_items_v1", defaultSchedule)
+
+    const itemsToRender = Array.isArray(scheduleItems) ? scheduleItems : defaultSchedule;
 
     return (
         <Card className="bg-stone-900/50 backdrop-blur-md border-stone-800 shadow-2xl relative overflow-hidden group">
@@ -94,7 +96,7 @@ export function DailySchedule() {
             </CardHeader>
             <CardContent className="pt-6">
                 <div className="space-y-4">
-                    {scheduleItems.map((item: any, index: number) => {
+                    {itemsToRender.map((item: any, index: number) => {
                         const IconComponent = typeof item.icon === 'string' ? (iconMap[item.icon] || Zap) : item.icon;
                         return (
                             <div key={index} className="flex gap-4 p-4 rounded-2xl bg-stone-950/50 border border-stone-800/50 hover:bg-stone-900/80 transition-colors">
