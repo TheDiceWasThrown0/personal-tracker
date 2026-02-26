@@ -1,5 +1,5 @@
 import { anthropic } from '@ai-sdk/anthropic';
-import { streamText } from 'ai';
+import { streamText, stepCountIs } from 'ai';
 import { aiTools } from '@/lib/ai-tools';
 
 // Allow streaming responses up to 30 seconds
@@ -26,6 +26,7 @@ When managing the daily schedule, the key is "daily_routine". The value must be 
 Do NOT use any other icons. You can create, update, or delete schedule items by overwriting the "daily_routine" key with a new array using the \`updateUserData\` tool.`,
         messages,
         tools: aiTools,
+        stopWhen: stepCountIs(5),
     });
 
     return result.toTextStreamResponse();
