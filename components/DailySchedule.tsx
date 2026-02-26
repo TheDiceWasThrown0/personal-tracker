@@ -82,7 +82,7 @@ export function DailySchedule() {
         }
     ]
 
-    const [scheduleItems] = useSyncedState("notification_schedules", defaultSchedule)
+    const [scheduleItems] = useSyncedState("daily_routine", defaultSchedule)
 
     return (
         <Card className="bg-stone-900/50 backdrop-blur-md border-stone-800 shadow-2xl relative overflow-hidden group">

@@ -14,7 +14,7 @@ export async function POST(req: Request) {
 
 Always check the current data with \`getUserData\` before using \`updateUserData\` to make modifications. Keep the aesthetic 'dark, edgy, intelligent, and slightly cyberpunk'.
 
-When managing the daily schedule, the key is "notification_schedules". The value must be a JSON array of objects with the following exact keys:
+When managing the daily schedule, the key is "daily_routine". The value must be a JSON array of objects with the following exact keys:
 - "time": string (e.g., "06:00" or "06:15 - 07:00")
 - "title": string
 - "description": string
@@ -23,7 +23,7 @@ When managing the daily schedule, the key is "notification_schedules". The value
 - "bg": string (e.g., "bg-red-500/10", "bg-orange-500/10")
 - "border": string (e.g., "border-red-500/20")
 
-Do NOT use any other icons. You can create, update, or delete schedule items by overwriting the "notification_schedules" key with a new array using the \`updateUserData\` tool.`,
+Do NOT use any other icons. You can create, update, or delete schedule items by overwriting the "daily_routine" key with a new array using the \`updateUserData\` tool.`,
         messages,
         tools: aiTools,
     });
