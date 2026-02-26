@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Bell, Plus, Trash2, Save } from "lucide-react";
+import { supabase } from "@/lib/supabaseClient";
 
 interface Schedule {
     id: string;
@@ -27,9 +28,13 @@ export function NotificationManager() {
         if (subscription) {
             // Check if THIS specific device's subscription is in the database
             try {
-                const response = await fetch('/api/user_data?key=push_subscriptions');
-                if (response.ok) {
-                    const data = await response.json();
+                const { data, error } = await supabase
+                    .from('user_data')
+                    .select('value')
+                    .eq('key', 'push_subscriptions')
+                    .single();
+
+                if (!error && data) {
                     if (data.value && Array.isArray(data.value)) {
                         const exists = data.value.some((sub: any) => sub.endpoint === subscription.endpoint);
                         setIsSubscribed(exists);
@@ -39,6 +44,8 @@ export function NotificationManager() {
                     } else {
                         setIsSubscribed(false);
                     }
+                } else {
+                    setIsSubscribed(false);
                 }
             } catch (e) {
                 console.error("Could not verify subscription against DB", e);
@@ -51,10 +58,14 @@ export function NotificationManager() {
 
     const loadSchedules = async () => {
         try {
-            const response = await fetch('/api/user_data?key=notification_schedules');
-            if (response.ok) {
-                const data = await response.json();
-                if (data.value) setSchedules(data.value);
+            const { data, error } = await supabase
+                .from('user_data')
+                .select('value')
+                .eq('key', 'notification_schedules')
+                .single();
+
+            if (!error && data && data.value) {
+                setSchedules(data.value);
             }
         } catch (e) {
             console.error("Could not load schedules", e);
