@@ -22,6 +22,13 @@ export function AIAssistant() {
         setInput('');
     };
 
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            handleSubmit(e as unknown as React.FormEvent);
+        }
+    };
+
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     // Auto-scroll to bottom of messages
@@ -80,7 +87,12 @@ export function AIAssistant() {
                                             ? "bg-stone-800 text-stone-200 border border-stone-700 rounded-tr-sm"
                                             : "bg-orange-900/10 text-orange-100/90 border border-orange-500/20 rounded-tl-sm backdrop-blur-sm"
                                     )}>
-                                        {m.content}
+                                        {m.parts?.map((part: any, i: number) => {
+                                            if (part.type === 'text') {
+                                                return <span key={i}>{part.text}</span>;
+                                            }
+                                            return null;
+                                        })}
                                     </div>
                                 </div>
                             ))
