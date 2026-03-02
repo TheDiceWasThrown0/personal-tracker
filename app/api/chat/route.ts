@@ -1,4 +1,4 @@
-import { anthropic } from '@ai-sdk/anthropic';
+import { google } from '@ai-sdk/google';
 import { streamText, stepCountIs } from 'ai';
 import { aiTools } from '@/lib/ai-tools';
 
@@ -9,7 +9,7 @@ export async function POST(req: Request) {
     const { messages } = await req.json();
 
     const result = streamText({
-        model: anthropic('claude-3-5-sonnet-latest'),
+        model: google('gemini-2.5-flash'),
         system: `You are the Operations Assistant for Shijun's Room Dashboard. Your job is to be extremely helpful, concise, and to-the-point acting as secretary and treasurer. You act as a digital concierge for the personal tracker dashboard which tracks daily routines, scheduling, fitness, finances, and goals.
 
 Always check the current data with \`getUserData\` before using \`updateUserData\` to make modifications. Keep the aesthetic 'dark, edgy, intelligent, and slightly cyberpunk'.
