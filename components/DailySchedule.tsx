@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
     Power, Brain, GraduationCap, Zap, Activity, ListTodo, Moon,
-    BatteryWarning, Clock, AlertCircle, Save, Edit2, Plus, Trash2, ArrowUp, ArrowDown
+    BatteryWarning, Clock, AlertCircle, Save, Plus, Trash2, ArrowUp, ArrowDown
 } from "lucide-react"
 import { useSyncedState } from "@/hooks/useSyncedState"
 
@@ -36,59 +36,68 @@ const defaultSchedule = [
 
 export function DailySchedule() {
     const [scheduleItems, setScheduleItems] = useSyncedState<any[]>("daily_schedule_items_v1", defaultSchedule)
-    const [isEditing, setIsEditing] = useState(false)
-    const [editItems, setEditItems] = useState<any[]>([])
+    const [editingIndex, setEditingIndex] = useState<number | null>(null)
+    const [editItem, setEditItem] = useState<any | null>(null)
 
     const itemsToRender = Array.isArray(scheduleItems) ? scheduleItems : defaultSchedule;
 
-    const handleEditClick = () => {
-        setEditItems([...itemsToRender])
-        setIsEditing(true)
+    const handleItemClick = (index: number) => {
+        if (editingIndex !== null) return; // Ignore if already editing an item
+        setEditingIndex(index)
+        setEditItem({ ...itemsToRender[index] })
     }
 
-    const handleSaveClick = async () => {
-        await setScheduleItems(editItems)
-        setIsEditing(false)
+    const handleSaveClick = async (index: number) => {
+        const newItems = [...itemsToRender]
+        newItems[index] = editItem
+        await setScheduleItems(newItems)
+        setEditingIndex(null)
+        setEditItem(null)
     }
 
     const handleCancelClick = () => {
-        setIsEditing(false)
+        setEditingIndex(null)
+        setEditItem(null)
     }
 
-    const handleItemChange = (index: number, field: string, value: string) => {
-        const newItems = [...editItems]
+    const handleItemChange = (field: string, value: string) => {
+        if (!editItem) return;
         if (field === 'theme') {
             const theme = themeMap[value] || themeMap.stone;
-            newItems[index] = { ...newItems[index], color: theme.color, bg: theme.bg, border: theme.border }
+            setEditItem({ ...editItem, color: theme.color, bg: theme.bg, border: theme.border })
         } else {
-            newItems[index] = { ...newItems[index], [field]: value }
+            setEditItem({ ...editItem, [field]: value })
         }
-        setEditItems(newItems)
     }
 
-    const handleMoveItem = (index: number, direction: 'up' | 'down') => {
-        const newItems = [...editItems]
+    const handleMoveItem = async (index: number, direction: 'up' | 'down') => {
+        const newItems = [...itemsToRender]
         if (direction === 'up' && index > 0) {
             const temp = newItems[index - 1]
             newItems[index - 1] = newItems[index]
             newItems[index] = temp
+            await setScheduleItems(newItems)
+            setEditingIndex(index - 1)
         } else if (direction === 'down' && index < newItems.length - 1) {
             const temp = newItems[index + 1]
             newItems[index + 1] = newItems[index]
             newItems[index] = temp
+            await setScheduleItems(newItems)
+            setEditingIndex(index + 1)
         }
-        setEditItems(newItems)
     }
 
-    const handleDeleteItem = (index: number) => {
-        const newItems = [...editItems]
+    const handleDeleteItem = async (index: number) => {
+        const newItems = [...itemsToRender]
         newItems.splice(index, 1)
-        setEditItems(newItems)
+        await setScheduleItems(newItems)
+        setEditingIndex(null)
+        setEditItem(null)
     }
 
-    const handleAddItem = () => {
+    const handleAddItem = async () => {
         const theme = themeMap.stone;
-        setEditItems([...editItems, {
+        const newItem = {
             time: "New Time",
             title: "New Status",
             description: "Description",
@@ -96,11 +105,17 @@ export function DailySchedule() {
             color: theme.color,
             bg: theme.bg,
             border: theme.border
-        }])
+        }
+        const newItems = [...itemsToRender, newItem]
+        await setScheduleItems(newItems)
+        const newIndex = newItems.length - 1
+        setEditingIndex(newIndex)
+        setEditItem({ ...newItem })
     }
 
     // Determine the current theme key based on the saved classes
     const getThemeKey = (item: any) => {
+        if (!item) return 'stone';
         for (const [key, value] of Object.entries(themeMap)) {
             if (value.color === item.color) return key;
         }
@@ -115,133 +130,131 @@ export function DailySchedule() {
                         <Zap className="w-5 h-5 text-orange-500" />
                         System Core Directives (Absolute Routine)
                     </CardTitle>
-                    <div className="flex gap-2">
-                        {isEditing ? (
-                            <>
-                                <Button variant="outline" size="sm" onClick={handleCancelClick} className="border-stone-700 bg-stone-800 hover:bg-stone-700 text-stone-300">
-                                    Cancel
-                                </Button>
-                                <Button size="sm" onClick={handleSaveClick} className="bg-orange-500 hover:bg-orange-600 text-white">
-                                    <Save className="w-4 h-4 mr-2" />
-                                    Save
-                                </Button>
-                            </>
-                        ) : (
-                            <Button variant="outline" size="sm" onClick={handleEditClick} className="border-stone-700 bg-stone-800/50 hover:bg-stone-800 text-stone-300">
-                                <Edit2 className="w-4 h-4 mr-2" />
-                                Edit
-                            </Button>
-                        )}
-                    </div>
                 </div>
             </CardHeader>
             <CardContent className="pt-6">
                 <div className="space-y-4">
-                    {isEditing ? (
-                        <>
-                            {editItems.map((item: any, index: number) => {
-                                const IconComponent = iconMap[item.icon] || Clock;
-                                return (
-                                    <div key={index} className="flex flex-col gap-3 p-4 rounded-2xl bg-stone-950/80 border border-stone-700/80 transition-colors">
-                                        <div className="flex justify-between items-start">
-                                            <div className="flex gap-2">
-                                                <Button size="icon" variant="ghost" onClick={() => handleMoveItem(index, 'up')} disabled={index === 0} className="h-8 w-8 text-stone-400 hover:text-stone-200 hover:bg-stone-800">
-                                                    <ArrowUp className="w-4 h-4" />
-                                                </Button>
-                                                <Button size="icon" variant="ghost" onClick={() => handleMoveItem(index, 'down')} disabled={index === editItems.length - 1} className="h-8 w-8 text-stone-400 hover:text-stone-200 hover:bg-stone-800">
-                                                    <ArrowDown className="w-4 h-4" />
-                                                </Button>
-                                            </div>
+                    {itemsToRender.map((item: any, index: number) => {
+                        const isCurrentlyEditing = editingIndex === index;
+                        const currentItemState = isCurrentlyEditing && editItem ? editItem : item;
+
+                        if (isCurrentlyEditing) {
+                            return (
+                                <div key={index} className="flex flex-col gap-3 p-4 rounded-2xl bg-stone-950/80 border border-stone-700/80 transition-colors">
+                                    <div className="flex justify-between items-start">
+                                        <div className="flex gap-2">
+                                            <Button size="icon" variant="ghost" onClick={() => handleMoveItem(index, 'up')} disabled={index === 0} className="h-8 w-8 text-stone-400 hover:text-stone-200 hover:bg-stone-800">
+                                                <ArrowUp className="w-4 h-4" />
+                                            </Button>
+                                            <Button size="icon" variant="ghost" onClick={() => handleMoveItem(index, 'down')} disabled={index === itemsToRender.length - 1} className="h-8 w-8 text-stone-400 hover:text-stone-200 hover:bg-stone-800">
+                                                <ArrowDown className="w-4 h-4" />
+                                            </Button>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <Button variant="outline" size="sm" onClick={handleCancelClick} className="border-stone-700 bg-stone-800 hover:bg-stone-700 text-stone-300">
+                                                Cancel
+                                            </Button>
                                             <Button size="icon" variant="ghost" onClick={() => handleDeleteItem(index)} className="h-8 w-8 text-red-400 hover:text-red-300 hover:bg-red-500/20">
                                                 <Trash2 className="w-4 h-4" />
                                             </Button>
+                                            <Button size="sm" onClick={() => handleSaveClick(index)} className="bg-orange-500 hover:bg-orange-600 text-white">
+                                                <Save className="w-4 h-4 mr-2" />
+                                                Save
+                                            </Button>
                                         </div>
+                                    </div>
 
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div className="space-y-1.5">
-                                                <label className="text-xs font-medium text-stone-400">Time / Period</label>
-                                                <Input
-                                                    value={item.time}
-                                                    onChange={(e) => handleItemChange(index, 'time', e.target.value)}
-                                                    className="bg-stone-900 border-stone-700 text-stone-200 h-9"
-                                                />
-                                            </div>
-                                            <div className="space-y-1.5">
-                                                <label className="text-xs font-medium text-stone-400">Title</label>
-                                                <Input
-                                                    value={item.title}
-                                                    onChange={(e) => handleItemChange(index, 'title', e.target.value)}
-                                                    className="bg-stone-900 border-stone-700 text-stone-200 h-9"
-                                                />
-                                            </div>
-                                            <div className="space-y-1.5">
-                                                <label className="text-xs font-medium text-stone-400">Icon</label>
-                                                <select
-                                                    value={item.icon}
-                                                    onChange={(e) => handleItemChange(index, 'icon', e.target.value)}
-                                                    className="flex h-9 w-full rounded-md border border-stone-700 bg-stone-900 px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-stone-300 text-stone-200"
-                                                >
-                                                    {Object.keys(iconMap).map(icon => (
-                                                        <option key={icon} value={icon}>{icon}</option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                            <div className="space-y-1.5">
-                                                <label className="text-xs font-medium text-stone-400">Color Theme</label>
-                                                <select
-                                                    value={getThemeKey(item)}
-                                                    onChange={(e) => handleItemChange(index, 'theme', e.target.value)}
-                                                    className="flex h-9 w-full rounded-md border border-stone-700 bg-stone-900 px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-stone-300 text-stone-200 capitalize"
-                                                >
-                                                    {Object.keys(themeMap).map(theme => (
-                                                        <option key={theme} value={theme}>{theme}</option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        <div className="space-y-1.5 mt-2">
-                                            <label className="text-xs font-medium text-stone-400">Description</label>
-                                            <textarea
-                                                value={item.description}
-                                                onChange={(e) => handleItemChange(index, 'description', e.target.value)}
-                                                className="flex min-h-[80px] w-full rounded-md border border-stone-700 bg-stone-900 px-3 py-2 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-stone-300 text-stone-200 resize-y"
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="space-y-1.5">
+                                            <label className="text-xs font-medium text-stone-400">Time / Period</label>
+                                            <Input
+                                                value={currentItemState.time}
+                                                onChange={(e) => handleItemChange('time', e.target.value)}
+                                                className="bg-stone-900 border-stone-700 text-stone-200 h-9"
+                                                autoFocus
                                             />
                                         </div>
-                                    </div>
-                                )
-                            })}
-                            <Button variant="outline" onClick={handleAddItem} className="w-full border-dashed border-stone-700 bg-transparent hover:bg-stone-800/50 text-stone-400 hover:text-stone-300 h-14 mt-4">
-                                <Plus className="w-5 h-5 mr-2" />
-                                Add New Routine Action
-                            </Button>
-                        </>
-                    ) : (
-                        itemsToRender.map((item: any, index: number) => {
-                            const IconComponent = typeof item.icon === 'string' ? (iconMap[item.icon] || Zap) : (item.icon || Zap);
-                            return (
-                                <div key={index} className="flex gap-4 p-4 rounded-2xl bg-stone-950/50 border border-stone-800/50 hover:bg-stone-900/80 transition-colors">
-                                    <div className="flex-shrink-0 mt-1">
-                                        <div className={`p-3 rounded-xl ${item.bg} ${item.border} border`}>
-                                            <IconComponent className={`w-6 h-6 ${item.color}`} />
+                                        <div className="space-y-1.5">
+                                            <label className="text-xs font-medium text-stone-400">Title</label>
+                                            <Input
+                                                value={currentItemState.title}
+                                                onChange={(e) => handleItemChange('title', e.target.value)}
+                                                className="bg-stone-900 border-stone-700 text-stone-200 h-9"
+                                            />
+                                        </div>
+                                        <div className="space-y-1.5">
+                                            <label className="text-xs font-medium text-stone-400">Icon</label>
+                                            <select
+                                                value={currentItemState.icon}
+                                                onChange={(e) => handleItemChange('icon', e.target.value)}
+                                                className="flex h-9 w-full rounded-md border border-stone-700 bg-stone-900 px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-stone-300 text-stone-200"
+                                            >
+                                                {Object.keys(iconMap).map(icon => (
+                                                    <option key={icon} value={icon}>{icon}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div className="space-y-1.5">
+                                            <label className="text-xs font-medium text-stone-400">Color Theme</label>
+                                            <select
+                                                value={getThemeKey(currentItemState)}
+                                                onChange={(e) => handleItemChange('theme', e.target.value)}
+                                                className="flex h-9 w-full rounded-md border border-stone-700 bg-stone-900 px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-stone-300 text-stone-200 capitalize"
+                                            >
+                                                {Object.keys(themeMap).map(theme => (
+                                                    <option key={theme} value={theme}>{theme}</option>
+                                                ))}
+                                            </select>
                                         </div>
                                     </div>
-                                    <div className="flex-1 space-y-1">
-                                        <div className="flex items-center gap-2">
-                                            <span className="font-mono text-xs font-bold px-2 py-0.5 rounded-sm bg-stone-800 text-stone-300">
-                                                {item.time}
-                                            </span>
-                                            <h3 className={`font-bold text-base md:text-lg ${item.color}`}>
-                                                {item.title}
-                                            </h3>
-                                        </div>
-                                        <p className="text-sm text-stone-400 font-medium leading-relaxed whitespace-pre-line">
-                                            {item.description}
-                                        </p>
+
+                                    <div className="space-y-1.5 mt-2">
+                                        <label className="text-xs font-medium text-stone-400">Description</label>
+                                        <textarea
+                                            value={currentItemState.description}
+                                            onChange={(e) => handleItemChange('description', e.target.value)}
+                                            className="flex min-h-[80px] w-full rounded-md border border-stone-700 bg-stone-900 px-3 py-2 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-stone-300 text-stone-200 resize-y"
+                                        />
                                     </div>
                                 </div>
                             )
-                        })
+                        }
+
+                        // Display Mode
+                        const IconComponent = typeof item.icon === 'string' ? (iconMap[item.icon] || Zap) : (item.icon || Zap);
+                        return (
+                            <div
+                                key={index}
+                                onClick={() => handleItemClick(index)}
+                                className={`flex gap-4 p-4 rounded-2xl bg-stone-950/50 border border-stone-800/50 transition-colors ${editingIndex === null ? 'cursor-pointer hover:bg-stone-900/80 hover:border-stone-700' : 'opacity-50 pointer-events-none grayscale'}`}
+                            >
+                                <div className="flex-shrink-0 mt-1">
+                                    <div className={`p-3 rounded-xl ${item.bg} ${item.border} border`}>
+                                        <IconComponent className={`w-6 h-6 ${item.color}`} />
+                                    </div>
+                                </div>
+                                <div className="flex-1 space-y-1">
+                                    <div className="flex items-center gap-2">
+                                        <span className="font-mono text-xs font-bold px-2 py-0.5 rounded-sm bg-stone-800 text-stone-300">
+                                            {item.time}
+                                        </span>
+                                        <h3 className={`font-bold text-base md:text-lg ${item.color}`}>
+                                            {item.title}
+                                        </h3>
+                                    </div>
+                                    <p className="text-sm text-stone-400 font-medium leading-relaxed whitespace-pre-line">
+                                        {item.description}
+                                    </p>
+                                </div>
+                            </div>
+                        )
+                    })}
+
+                    {editingIndex === null && (
+                        <Button variant="outline" onClick={handleAddItem} className="w-full border-dashed border-stone-700 bg-transparent hover:bg-stone-800/50 text-stone-400 hover:text-stone-300 h-14 mt-4">
+                            <Plus className="w-5 h-5 mr-2" />
+                            Add New Routine Action
+                        </Button>
                     )}
                 </div>
             </CardContent>
