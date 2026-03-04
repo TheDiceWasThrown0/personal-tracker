@@ -29,6 +29,8 @@ export function AIAssistant() {
         }
     };
 
+    console.log('UI MESSAGES:', messages);
+
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     // Auto-scroll to bottom of messages
