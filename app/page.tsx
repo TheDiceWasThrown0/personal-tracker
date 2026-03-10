@@ -15,7 +15,8 @@ import { CalendarSystem } from "@/components/CalendarSystem"
 import { DailySchedule } from "@/components/DailySchedule"
 import { GlobalDiary } from "@/components/GlobalDiary"
 import { AIAssistant } from "@/components/AIAssistant"
-import { LayoutGrid, Map, Lock, Activity, Cookie, CalendarDays, ListTodo } from "lucide-react"
+import { SkillAcademiaTracker } from "@/components/SkillAcademiaTracker"
+import { LayoutGrid, Map, Lock, Activity, Cookie, CalendarDays, ListTodo, BookOpen } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core'
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
@@ -52,13 +53,13 @@ function SortableTab({ tab, isActive, onClick }: { tab: any, isActive: boolean, 
   )
 }
 
-type Tab = "dashboard" | "routine" | "planner" | "roadmap" | "fitness" | "cookie"
+type Tab = "dashboard" | "routine" | "planner" | "roadmap" | "fitness" | "cookie" | "skills"
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<Tab>("dashboard")
   const [isUnlocked, setIsUnlocked] = useLocalStorage<boolean>("shijun-access-granted", false)
   const [isMounted, setIsMounted] = useState(false)
-  const [tabsOrder, setTabsOrder] = useSyncedState<string[]>("tabs_order_v2", ["dashboard", "routine", "planner", "roadmap", "fitness", "cookie"])
+  const [tabsOrder, setTabsOrder] = useSyncedState<string[]>("tabs_order_v2", ["dashboard", "routine", "planner", "roadmap", "fitness", "cookie", "skills"])
 
   useEffect(() => { setIsMounted(true) }, [])
 
@@ -74,6 +75,7 @@ export default function Home() {
     roadmap:   { id: "roadmap",   label: "Path",              icon: Map        },
     fitness:   { id: "fitness",   label: "Bio-Infrastructure", icon: Activity  },
     cookie:    { id: "cookie",    label: "Cookies",           icon: Cookie     },
+    skills:    { id: "skills",    label: "Skills & Academia", icon: BookOpen   },
   }
 
   const tabs = tabsOrder.map(id => tabsPool[id as keyof typeof tabsPool]).filter(Boolean)
@@ -209,6 +211,13 @@ export default function Home() {
             {activeTab === "cookie" && (
               <div className="space-y-8 pt-2">
                 <CookieTracker />
+              </div>
+            )}
+
+            {activeTab === "skills" && (
+              <div className="space-y-8">
+                <SectionHeader label="Skills & Academia" />
+                <SkillAcademiaTracker />
               </div>
             )}
 

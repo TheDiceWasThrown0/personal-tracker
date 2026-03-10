@@ -1,9 +1,7 @@
 import { useSyncedState } from "@/hooks/useSyncedState"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowUpRight, TrendingUp, GraduationCap, Banknote, Edit2, Check, X, ChevronDown } from "lucide-react"
+import { ArrowUpRight, TrendingUp, TrendingDown, GraduationCap, Banknote, Edit2, Check, X, ChevronDown } from "lucide-react"
 import { useState, useMemo } from "react"
-import { subDays, format, isSameDay, parseISO, isBefore, closestTo } from "date-fns"
-import { Button } from "@/components/ui/button"
+import { subDays, format, parseISO, closestTo } from "date-fns"
 import dynamic from 'next/dynamic'
 const NotificationManager = dynamic(
     () => import('./NotificationManager').then(mod => mod.NotificationManager),
@@ -18,235 +16,194 @@ import {
 
 type Period = "1D" | "7D" | "30D"
 
+function StatCard({ children, accent }: { children: React.ReactNode; accent?: string }) {
+    return (
+        <div
+            className="rounded-xl p-5 flex flex-col gap-3"
+            style={{ background: 'hsl(24 7% 11%)', border: '1px solid hsl(24 6% 17%)' }}
+        >
+            {children}
+        </div>
+    )
+}
+
 export default function StatusDashboard() {
-    // Persistent State
     const [netWorth, setNetWorth] = useSyncedState<number>("target_net_worth", 250000)
     const [netWorthHistory] = useSyncedState<any[]>("net_worth_history", [])
     const [gpa, setGpa] = useSyncedState<number>("shijun-gpa", 3.8)
-    const [gmatScore, setGmatScore] = useSyncedState<number>("shijun-gmat", 680) // Baseline
-
-    // Targets (could also be persistent if we want to change goals)
+    const [gmatScore, setGmatScore] = useSyncedState<number>("shijun-gmat", 680)
     const [gpaTarget, setGpaTarget] = useSyncedState<number>("shijun-gpa-target", 4.0)
+    const [gmatExamDate, setGmatExamDate] = useSyncedState<string>("shijun-gmat-exam-date", "Q3 2027")
     const [selectedPeriod, setSelectedPeriod] = useSyncedState<Period>("dashboard_trend_period", "1D")
-
     const [isEditing, setIsEditing] = useState(false)
 
-    // Temporary state for editing (don't need to persist these until save)
     const [tempNetWorth, setTempNetWorth] = useState(netWorth)
     const [tempGpa, setTempGpa] = useState(gpa)
     const [tempGmatScore, setTempGmatScore] = useState(gmatScore)
     const [tempGpaTarget, setTempGpaTarget] = useState(gpaTarget)
+    const [tempGmatExamDate, setTempGmatExamDate] = useState(gmatExamDate)
 
     const handleEdit = () => {
-        setTempNetWorth(netWorth)
-        setTempGpa(gpa)
-        setTempGpaTarget(gpaTarget)
-        setTempGmatScore(gmatScore)
-        setIsEditing(true)
+        setTempNetWorth(netWorth); setTempGpa(gpa)
+        setTempGpaTarget(gpaTarget); setTempGmatScore(gmatScore)
+        setTempGmatExamDate(gmatExamDate); setIsEditing(true)
     }
 
     const handleSave = () => {
-        setNetWorth(tempNetWorth)
-        setGpa(tempGpa)
-        setGmatScore(tempGmatScore)
-        setIsEditing(false)
+        setNetWorth(tempNetWorth); setGpa(tempGpa)
+        setGpaTarget(tempGpaTarget); setGmatScore(tempGmatScore)
+        setGmatExamDate(tempGmatExamDate); setIsEditing(false)
     }
 
-    const handleCancel = () => {
-        setIsEditing(false)
-    }
-
-    // Calculate Trend
     const trendData = useMemo(() => {
-        if (!netWorthHistory || netWorthHistory.length === 0) return { value: 0, label: "vs start" }
-
+        if (!netWorthHistory?.length) return { value: 0, positive: true }
         const today = new Date()
-        let targetDate: Date
-
-        if (selectedPeriod === "1D") targetDate = subDays(today, 1)
-        else if (selectedPeriod === "7D") targetDate = subDays(today, 7)
-        else targetDate = subDays(today, 30)
-
-        // Find the entry closest to the target date (but not after today)
-        // We prefer extensive history, but if we don't have it, we take the earliest available
-        // to show *some* growth if possible
-
-        // precise string match first
+        const daysMap = { "1D": 1, "7D": 7, "30D": 30 }
+        const targetDate = subDays(today, daysMap[selectedPeriod])
         const targetStr = format(targetDate, "yyyy-MM-dd")
-        const exactMatch = netWorthHistory.find(h => h.date === targetStr)
-
+        const exact = netWorthHistory.find(h => h.date === targetStr)
         let pastValue = 0
-        if (exactMatch) {
-            pastValue = exactMatch.value
+        if (exact) {
+            pastValue = exact.value
         } else {
-            // Find closest date in history
-            const historyDates = netWorthHistory.map(h => parseISO(h.date))
-            const closest = closestTo(targetDate, historyDates)
-
+            const dates = netWorthHistory.map(h => parseISO(h.date))
+            const closest = closestTo(targetDate, dates)
             if (closest) {
-                const closestStr = format(closest, "yyyy-MM-dd")
-                const entry = netWorthHistory.find(h => h.date === closestStr)
+                const entry = netWorthHistory.find(h => h.date === format(closest, "yyyy-MM-dd"))
                 if (entry) pastValue = entry.value
             }
         }
-
-        if (pastValue === 0) return { value: 0, label: "vs start" }
-
-        const diff = netWorth - pastValue
-        const pct = (diff / pastValue) * 100
-
-        return { value: pct, label: `vs ${selectedPeriod}` }
+        if (!pastValue) return { value: 0, positive: true }
+        const pct = ((netWorth - pastValue) / pastValue) * 100
+        return { value: pct, positive: pct >= 0 }
     }, [netWorth, netWorthHistory, selectedPeriod])
+
+    const inputStyle = {
+        background: 'hsl(24 7% 14%)',
+        border: '1px solid hsl(24 6% 22%)',
+        color: 'hsl(30 18% 88%)',
+        borderRadius: '0.5rem',
+        padding: '0.375rem 0.625rem',
+        outline: 'none',
+        width: '100%',
+    }
 
     return (
         <>
-            <div className="relative mb-12">
-                {isEditing && (
-                    <div className="absolute -top-10 right-0 flex gap-2 z-10">
-                        <button onClick={handleSave} className="bg-primary text-white p-2 rounded-full shadow-md hover:scale-110 transition-transform">
-                            <Check className="w-4 h-4" />
-                        </button>
-                        <button onClick={handleCancel} className="bg-red-400 text-white p-2 rounded-full shadow-md hover:scale-110 transition-transform">
-                            <X className="w-4 h-4" />
-                        </button>
+            <div className="relative">
+                {/* Edit / Save controls */}
+                <div className="flex items-center justify-between mb-4">
+                    <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'hsl(30 8% 38%)' }}>Status</p>
+                    <div className="flex gap-2">
+                        {isEditing ? (
+                            <>
+                                <button onClick={handleSave} className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg font-medium transition-colors" style={{ background: '#e06d34', color: '#fff' }}>
+                                    <Check className="w-3 h-3" /> Save
+                                </button>
+                                <button onClick={() => setIsEditing(false)} className="text-xs px-3 py-1.5 rounded-lg font-medium transition-colors" style={{ background: 'hsl(24 7% 16%)', color: 'hsl(30 8% 50%)', border: '1px solid hsl(24 6% 20%)' }}>
+                                    <X className="w-3 h-3" />
+                                </button>
+                            </>
+                        ) : (
+                            <button onClick={handleEdit} className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg font-medium transition-colors" style={{ background: 'hsl(24 7% 16%)', color: 'hsl(30 8% 50%)', border: '1px solid hsl(24 6% 20%)' }}>
+                                <Edit2 className="w-3 h-3" /> Edit
+                            </button>
+                        )}
                     </div>
-                )}
+                </div>
 
-                <div className={`grid grid-cols-1 md:grid-cols-3 gap-6 ${isEditing ? '' : ''}`}>
-                    {/* Net Worth Card */}
-                    <Card
-                        className={`bg-stone-800/50 backdrop-blur-md border-stone-700 shadow-xl transition-all relative overflow-hidden group ${!isEditing && 'hover:-translate-y-1 hover:border-lime-500/50 hover:shadow-lime-900/20'}`}
-                    >
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-bold text-lime-400 uppercase tracking-wider">
-                                Net Worth (JPY)
-                            </CardTitle>
-                            <div className="flex gap-2">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+                    {/* Net Worth */}
+                    <StatCard>
+                        <div className="flex items-center justify-between">
+                            <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'hsl(30 8% 42%)' }}>Net Worth (JPY)</span>
+                            <div className="flex items-center gap-2">
                                 {!isEditing && (
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
-                                            <button className="text-[10px] font-bold bg-stone-900/50 text-stone-400 px-2 py-1 rounded hover:bg-stone-700 transition-colors flex items-center gap-1">
+                                            <button className="text-[10px] font-semibold flex items-center gap-1 px-2 py-1 rounded-md" style={{ background: 'hsl(24 7% 16%)', color: 'hsl(30 8% 50%)', border: '1px solid hsl(24 6% 20%)' }}>
                                                 {selectedPeriod} <ChevronDown className="w-3 h-3" />
                                             </button>
                                         </DropdownMenuTrigger>
-                                        <DropdownMenuContent className="bg-stone-800 border-stone-700 text-stone-200">
-                                            <DropdownMenuItem onClick={() => setSelectedPeriod("1D")} className="focus:bg-stone-700 cursor-pointer text-xs font-bold">Yesterday (1D)</DropdownMenuItem>
-                                            <DropdownMenuItem onClick={() => setSelectedPeriod("7D")} className="focus:bg-stone-700 cursor-pointer text-xs font-bold">Last Week (7D)</DropdownMenuItem>
-                                            <DropdownMenuItem onClick={() => setSelectedPeriod("30D")} className="focus:bg-stone-700 cursor-pointer text-xs font-bold">Last Month (30D)</DropdownMenuItem>
+                                        <DropdownMenuContent style={{ background: 'hsl(24 7% 13%)', border: '1px solid hsl(24 6% 18%)' }}>
+                                            {(["1D", "7D", "30D"] as Period[]).map(p => (
+                                                <DropdownMenuItem key={p} onClick={() => setSelectedPeriod(p)} className="text-xs font-medium cursor-pointer" style={{ color: 'hsl(30 18% 75%)' }}>
+                                                    {p === "1D" ? "Yesterday" : p === "7D" ? "Last week" : "Last month"}
+                                                </DropdownMenuItem>
+                                            ))}
                                         </DropdownMenuContent>
                                     </DropdownMenu>
                                 )}
-                                <div className="p-2 bg-lime-900/30 rounded-full text-lime-400 border border-lime-500/20 cursor-pointer" onClick={() => !isEditing && handleEdit()}>
-                                    <Banknote className="h-5 w-5" />
-                                </div>
+                                <Banknote className="w-4 h-4" style={{ color: '#e06d34' }} />
                             </div>
-                        </CardHeader>
-                        <CardContent onClick={() => !isEditing && handleEdit()} className="cursor-pointer">
-                            {isEditing ? (
-                                <input
-                                    type="number"
-                                    value={tempNetWorth}
-                                    onChange={(e) => setTempNetWorth(Number(e.target.value))}
-                                    className="w-full text-2xl font-extrabold text-lime-100 bg-black/20 rounded-lg px-2 py-1 border-2 border-lime-500/50 focus:outline-none focus:ring-2 focus:ring-lime-500"
-                                />
-                            ) : (
-                                <div className="text-3xl font-extrabold text-lime-100">¥{netWorth.toLocaleString()}</div>
-                            )}
+                        </div>
 
-                            <p className={`text-xs font-bold mt-2 flex items-center w-fit px-2 py-1 rounded-full border ${trendData.value >= 0 ? 'text-lime-400 bg-lime-900/20 border-lime-500/10' : 'text-red-400 bg-red-900/20 border-red-500/10'}`}>
-                                <TrendingUp className={`h-3 w-3 mr-1 ${trendData.value < 0 ? 'rotate-180' : ''}`} />
-                                {trendData.value >= 0 ? '+' : ''}{trendData.value.toFixed(2)}% {trendData.label}
-                            </p>
-                        </CardContent>
-                    </Card>
+                        {isEditing ? (
+                            <input type="number" value={tempNetWorth} onChange={e => setTempNetWorth(Number(e.target.value))} style={{ ...inputStyle, fontSize: '1.25rem', fontWeight: 700 }} />
+                        ) : (
+                            <p className="text-2xl font-bold tabular-nums" style={{ color: 'hsl(30 18% 92%)' }}>¥{netWorth.toLocaleString()}</p>
+                        )}
 
-                    {/* GPA Card */}
-                    <Card
-                        onClick={() => !isEditing && handleEdit()}
-                        className={`bg-stone-800/50 backdrop-blur-md border-stone-700 shadow-xl transition-all relative overflow-hidden group ${!isEditing && 'hover:-translate-y-1 hover:border-blue-500/50 hover:shadow-blue-900/20 cursor-pointer'}`}
-                    >
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-bold text-blue-400 uppercase tracking-wider">
-                                Current GPA
-                            </CardTitle>
-                            <div className="p-2 bg-blue-900/30 rounded-full text-blue-400 border border-blue-500/20">
-                                <GraduationCap className="h-5 w-5" />
-                            </div>
-                        </CardHeader>
-                        <CardContent>
-                            {isEditing ? (
-                                <div className="flex items-end gap-2">
-                                    <input
-                                        type="number"
-                                        step="0.01"
-                                        value={tempGpa}
-                                        onChange={(e) => setTempGpa(Number(e.target.value))}
-                                        className="w-24 text-2xl font-extrabold text-blue-100 bg-black/20 rounded-lg px-2 py-1 border-2 border-blue-500/50 focus:outline-none"
-                                    />
-                                    <span className="text-xl font-bold text-blue-400/50 mb-2">/ 4.0</span>
-                                </div>
-                            ) : (
-                                <div className="text-3xl font-extrabold text-blue-100">{gpa.toFixed(1)} / 4.0</div>
-                            )}
+                        <div className="flex items-center gap-1.5">
+                            {trendData.positive
+                                ? <TrendingUp className="w-3 h-3" style={{ color: '#4ade80' }} />
+                                : <TrendingDown className="w-3 h-3" style={{ color: '#f87171' }} />
+                            }
+                            <span className="text-xs font-medium" style={{ color: trendData.positive ? '#4ade80' : '#f87171' }}>
+                                {trendData.value >= 0 ? '+' : ''}{trendData.value.toFixed(2)}% vs {selectedPeriod}
+                            </span>
+                        </div>
+                    </StatCard>
 
-                            <div className="flex items-center gap-2 mt-2">
-                                <span className="text-xs font-bold text-blue-400 bg-blue-900/20 w-fit px-2 py-1 rounded-full whitespace-nowrap border border-blue-500/10">
-                                    Target:
-                                    {isEditing ? (
-                                        <input
-                                            type="number"
-                                            step="0.1"
-                                            value={tempGpaTarget}
-                                            onChange={(e) => setTempGpaTarget(Number(e.target.value))}
-                                            onClick={(e) => e.stopPropagation()}
-                                            className="w-12 ml-1 bg-transparent border-b border-blue-500 text-center focus:outline-none text-blue-200"
-                                        />
-                                    ) : (
-                                        <span className="ml-1 text-blue-200">{gpaTarget}+</span>
-                                    )}
-                                    (Sophia)
-                                </span>
-                            </div>
+                    {/* GPA */}
+                    <StatCard>
+                        <div className="flex items-center justify-between">
+                            <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'hsl(30 8% 42%)' }}>GPA</span>
+                            <GraduationCap className="w-4 h-4" style={{ color: '#60a5fa' }} />
+                        </div>
 
-                            <div className="w-full bg-stone-900 h-3 mt-3 rounded-full overflow-hidden border border-stone-700">
-                                <div className="bg-blue-500 h-full rounded-full" style={{ width: `${(gpa / 4.0) * 100}%` }}></div>
+                        {isEditing ? (
+                            <div className="flex gap-2 items-center">
+                                <input type="number" step="0.01" value={tempGpa} onChange={e => setTempGpa(Number(e.target.value))} style={{ ...inputStyle, fontSize: '1.25rem', fontWeight: 700, width: '80px' }} />
+                                <span style={{ color: 'hsl(30 8% 42%)' }}>/</span>
+                                <input type="number" step="0.1" value={tempGpaTarget} onChange={e => setTempGpaTarget(Number(e.target.value))} style={{ ...inputStyle, width: '70px' }} placeholder="target" />
                             </div>
-                        </CardContent>
-                    </Card>
+                        ) : (
+                            <p className="text-2xl font-bold tabular-nums" style={{ color: 'hsl(30 18% 92%)' }}>{gpa.toFixed(1)} <span className="text-base font-normal" style={{ color: 'hsl(30 8% 42%)' }}>/ {gpaTarget}</span></p>
+                        )}
 
-                    {/* GMAT Card */}
-                    <Card
-                        onClick={() => !isEditing && handleEdit()}
-                        className={`bg-stone-800/50 backdrop-blur-md border-stone-700 shadow-xl transition-all relative overflow-hidden group ${!isEditing && 'hover:-translate-y-1 hover:border-amber-500/50 hover:shadow-amber-900/20 cursor-pointer'}`}
-                    >
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-bold text-amber-500 uppercase tracking-wider">
-                                GMAT Focus Target
-                            </CardTitle>
-                            <div className="p-2 bg-amber-900/30 rounded-full text-amber-500 border border-amber-500/20">
-                                <ArrowUpRight className="h-5 w-5" />
+                        <div>
+                            <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: 'hsl(24 7% 18%)' }}>
+                                <div className="h-full rounded-full transition-all" style={{ width: `${(gpa / gpaTarget) * 100}%`, background: '#60a5fa' }} />
                             </div>
-                        </CardHeader>
-                        <CardContent>
-                            {isEditing ? (
-                                <input
-                                    type="number"
-                                    value={tempGmatScore}
-                                    onChange={(e) => setTempGmatScore(Number(e.target.value))}
-                                    className="w-full text-2xl font-extrabold text-amber-100 bg-black/20 rounded-lg px-2 py-1 border-2 border-amber-500/50 focus:outline-none"
-                                />
-                            ) : (
-                                <div className="text-3xl font-extrabold text-amber-100">{gmatScore}+</div>
-                            )}
-                            <p className="text-xs font-bold text-amber-500 mt-2 bg-amber-900/20 w-fit px-2 py-1 rounded-full border border-amber-500/10">
-                                Expected Exam: Q3 2027
-                            </p>
-                            <div className="w-full bg-stone-900 h-3 mt-3 rounded-full overflow-hidden border border-stone-700">
-                                {/* Assuming max score is 805 for Focus Edition, linear scale approx */}
-                                <div className="bg-amber-500 h-full rounded-full" style={{ width: `${(gmatScore / 805) * 100}%` }}></div>
+                            <p className="text-[11px] mt-1.5" style={{ color: 'hsl(30 8% 40%)' }}>Target: {gpaTarget}+ (Sophia)</p>
+                        </div>
+                    </StatCard>
+
+                    {/* GMAT */}
+                    <StatCard>
+                        <div className="flex items-center justify-between">
+                            <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'hsl(30 8% 42%)' }}>GMAT Focus</span>
+                            <ArrowUpRight className="w-4 h-4" style={{ color: '#f59e0b' }} />
+                        </div>
+
+                        {isEditing ? (
+                            <div className="flex flex-col gap-2">
+                                <input type="number" value={tempGmatScore} onChange={e => setTempGmatScore(Number(e.target.value))} style={{ ...inputStyle, fontSize: '1.25rem', fontWeight: 700 }} />
+                                <input type="text" value={tempGmatExamDate} onChange={e => setTempGmatExamDate(e.target.value)} style={inputStyle} placeholder="Exam date e.g. Q3 2027" />
                             </div>
-                        </CardContent>
-                    </Card>
+                        ) : (
+                            <p className="text-2xl font-bold tabular-nums" style={{ color: 'hsl(30 18% 92%)' }}>{gmatScore}<span className="text-base font-normal" style={{ color: 'hsl(30 8% 42%)' }}>+</span></p>
+                        )}
+
+                        <div>
+                            <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: 'hsl(24 7% 18%)' }}>
+                                <div className="h-full rounded-full transition-all" style={{ width: `${(gmatScore / 805) * 100}%`, background: '#f59e0b' }} />
+                            </div>
+                            <p className="text-[11px] mt-1.5" style={{ color: 'hsl(30 8% 40%)' }}>Exam: {gmatExamDate}</p>
+                        </div>
+                    </StatCard>
                 </div>
             </div>
 

@@ -2,18 +2,32 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useChat } from '@ai-sdk/react';
-import { MessageSquare, X, Send, Cpu, Loader2 } from 'lucide-react';
-import { cn } from '@/lib/utils'; // Assuming you have a utils folder
+import { MessageSquare, X, Send, Sparkles, Loader2, Trash2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { supabase } from '@/lib/supabaseClient';
 
-export function AIAssistant() {
-    const [isOpen, setIsOpen] = useState(false);
+const HISTORY_KEY = 'ai_chat_history_v1';
+
+function ChatWindow({ initialMessages, onMessagesChange, onClear }: {
+    initialMessages: any[];
+    onMessagesChange: (msgs: any[]) => void;
+    onClear: () => void;
+}) {
     const [input, setInput] = useState('');
-    const { messages, sendMessage, status } = useChat();
+    const { messages, sendMessage, status } = useChat({ initialMessages });
     const isLoading = status === 'submitted' || status === 'streaming';
+    const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setInput(e.target.value);
-    };
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [messages]);
+
+    // Persist when a response completes
+    useEffect(() => {
+        if (status === 'ready' && messages.length > 0) {
+            onMessagesChange(messages);
+        }
+    }, [status]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -22,132 +36,160 @@ export function AIAssistant() {
         setInput('');
     };
 
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            handleSubmit(e as unknown as React.FormEvent);
-        }
-    };
-
-    console.log('UI MESSAGES:', messages);
-
-    const messagesEndRef = useRef<HTMLDivElement>(null);
-
-    // Auto-scroll to bottom of messages
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    };
-
-    useEffect(() => {
-        scrollToBottom();
-    }, [messages]);
-
     return (
-        <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
-            {/* Chat Window */}
-            {isOpen && (
-                <div className="mb-4 w-[350px] sm:w-[400px] h-[500px] max-h-[80vh] bg-stone-900/90 backdrop-blur-xl border border-stone-800 rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-5 fade-in duration-300">
-
-                    {/* Header */}
-                    <div className="flex items-center justify-between p-4 border-b border-stone-800 bg-stone-900">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-orange-500/10 rounded-lg border border-orange-500/20">
-                                <Cpu className="w-5 h-5 text-orange-400" />
-                            </div>
-                            <div>
-                                <h3 className="text-sm font-bold text-stone-200">Room Ops Assistant</h3>
-                                <p className="text-[10px] text-stone-500 font-mono uppercase tracking-wider flex items-center gap-1">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
-                                    System Online
-                                </p>
-                            </div>
-                        </div>
-                        <button
-                            onClick={() => setIsOpen(false)}
-                            className="p-2 text-stone-500 hover:text-stone-300 hover:bg-stone-800 rounded-lg transition-colors"
-                        >
-                            <X className="w-4 h-4" />
-                        </button>
-                    </div>
-
-                    {/* Messages Area */}
-                    <div className="flex-1 overflow-y-auto p-4 space-y-4 scroll-smooth">
-                        {messages.length === 0 ? (
-                            <div className="h-full flex flex-col items-center justify-center text-center space-y-3 opacity-50">
-                                <Cpu className="w-12 h-12 text-stone-600" />
-                                <p className="text-sm text-stone-500 font-mono">Awaiting your command, operator.</p>
-                            </div>
-                        ) : (
-                            messages.map((m: any) => (
-                                <div key={m.id} className={cn(
-                                    "flex w-full",
-                                    m.role === 'user' ? "justify-end" : "justify-start"
-                                )}>
-                                    <div className={cn(
-                                        "max-w-[85%] rounded-xl px-4 py-3 text-sm leading-relaxed",
-                                        m.role === 'user'
-                                            ? "bg-stone-800 text-stone-200 border border-stone-700 rounded-tr-sm"
-                                            : "bg-orange-900/10 text-orange-100/90 border border-orange-500/20 rounded-tl-sm backdrop-blur-sm"
-                                    )}>
-                                        {m.parts?.map((part: any, i: number) => {
-                                            if (part.type === 'text') {
-                                                return <span key={i}>{part.text}</span>;
-                                            }
-                                            return null;
-                                        })}
-                                    </div>
-                                </div>
-                            ))
-                        )}
-
-                        {isLoading && (
-                            <div className="flex justify-start w-full text-orange-500/50">
-                                <Loader2 className="w-4 h-4 animate-spin ml-2" />
-                            </div>
-                        )}
-                        <div ref={messagesEndRef} />
-                    </div>
-
-                    {/* Input Area */}
-                    <div className="p-4 border-t border-stone-800 bg-stone-900">
-                        <form onSubmit={handleSubmit} className="flex gap-2">
-                            <input
-                                className="flex-1 bg-stone-950 border border-stone-800 text-stone-200 text-sm rounded-xl px-4 py-3 focus:outline-none focus:ring-1 focus:ring-orange-500/50 focus:border-orange-500/50 transition-all placeholder:text-stone-600"
-                                value={input}
-                                placeholder="Initialize instruction protocol..."
-                                onChange={handleInputChange}
-                                disabled={isLoading}
-                            />
-                            <button
-                                type="submit"
-                                disabled={isLoading || !input.trim()}
-                                className="bg-orange-600 hover:bg-orange-500 text-white rounded-xl px-4 flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed border border-orange-500"
-                            >
-                                <Send className="w-4 h-4" />
-                            </button>
-                        </form>
+        <div
+            className="mb-4 w-[360px] sm:w-[420px] flex flex-col overflow-hidden animate-in slide-in-from-bottom-4 fade-in duration-200"
+            style={{
+                height: '520px',
+                maxHeight: '80vh',
+                background: 'hsl(24 7% 10%)',
+                border: '1px solid hsl(24 6% 17%)',
+                borderRadius: '1rem',
+            }}
+        >
+            {/* Header */}
+            <div className="flex items-center justify-between px-4 py-3 shrink-0" style={{ borderBottom: '1px solid hsl(24 6% 15%)' }}>
+                <div className="flex items-center gap-2.5">
+                    <Sparkles className="w-4 h-4" style={{ color: '#e06d34' }} />
+                    <div>
+                        <p className="text-sm font-semibold" style={{ color: 'hsl(30 18% 88%)' }}>Room Assistant</p>
+                        <p className="text-[10px]" style={{ color: 'hsl(30 8% 42%)' }}>Reads & writes your tracker data</p>
                     </div>
                 </div>
+                <button
+                    onClick={onClear}
+                    className="p-1.5 rounded-md transition-colors"
+                    style={{ color: 'hsl(30 8% 38%)' }}
+                    onMouseEnter={e => (e.currentTarget.style.color = '#e06d34')}
+                    onMouseLeave={e => (e.currentTarget.style.color = 'hsl(30 8% 38%)')}
+                    title="Clear conversation"
+                >
+                    <Trash2 className="w-3.5 h-3.5" />
+                </button>
+            </div>
+
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
+                {messages.length === 0 ? (
+                    <div className="h-full flex flex-col items-center justify-center text-center gap-3 opacity-40">
+                        <Sparkles className="w-8 h-8" style={{ color: '#e06d34' }} />
+                        <p className="text-sm" style={{ color: 'hsl(30 8% 50%)' }}>
+                            Ask me anything about your data.<br />I can read and update your tracker.
+                        </p>
+                    </div>
+                ) : (
+                    messages.map((m: any) => (
+                        <div key={m.id} className={cn("flex w-full", m.role === 'user' ? "justify-end" : "justify-start")}>
+                            <div
+                                className="max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed"
+                                style={m.role === 'user'
+                                    ? { background: 'hsl(24 7% 16%)', color: 'hsl(30 18% 88%)', borderBottomRightRadius: '4px' }
+                                    : { background: 'hsl(22 40% 14%)', color: 'hsl(30 25% 85%)', border: '1px solid hsl(22 30% 22%)', borderBottomLeftRadius: '4px' }
+                                }
+                            >
+                                {m.parts?.map((part: any, i: number) => {
+                                    if (part.type === 'text') return <span key={i} style={{ whiteSpace: 'pre-wrap' }}>{part.text}</span>;
+                                    return null;
+                                })}
+                            </div>
+                        </div>
+                    ))
+                )}
+
+                {isLoading && (
+                    <div className="flex justify-start">
+                        <div className="px-3.5 py-2.5 rounded-2xl rounded-bl-sm" style={{ background: 'hsl(22 40% 14%)', border: '1px solid hsl(22 30% 22%)' }}>
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" style={{ color: '#e06d34' }} />
+                        </div>
+                    </div>
+                )}
+                <div ref={messagesEndRef} />
+            </div>
+
+            {/* Input */}
+            <div className="px-4 py-3 shrink-0" style={{ borderTop: '1px solid hsl(24 6% 15%)' }}>
+                <form onSubmit={handleSubmit} className="flex gap-2">
+                    <input
+                        className="flex-1 text-sm rounded-xl px-3.5 py-2.5 focus:outline-none transition-all"
+                        style={{
+                            background: 'hsl(24 7% 14%)',
+                            border: '1px solid hsl(24 6% 20%)',
+                            color: 'hsl(30 18% 88%)',
+                        }}
+                        value={input}
+                        placeholder="Ask about your data..."
+                        onChange={e => setInput(e.target.value)}
+                        onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit(e as any); } }}
+                        disabled={isLoading}
+                    />
+                    <button
+                        type="submit"
+                        disabled={isLoading || !input.trim()}
+                        className="rounded-xl px-3.5 flex items-center justify-center transition-all disabled:opacity-40"
+                        style={{ background: '#e06d34', color: '#fff' }}
+                    >
+                        <Send className="w-3.5 h-3.5" />
+                    </button>
+                </form>
+            </div>
+        </div>
+    );
+}
+
+export function AIAssistant() {
+    const [isOpen, setIsOpen] = useState(false);
+    const [initialMessages, setInitialMessages] = useState<any[] | null>(null);
+    const [chatKey, setChatKey] = useState(0); // force remount ChatWindow when clearing
+
+    // Load history from Supabase on mount
+    useEffect(() => {
+        supabase.from('user_data').select('value').eq('key', HISTORY_KEY).single()
+            .then(({ data }) => {
+                setInitialMessages(Array.isArray(data?.value) ? data.value : []);
+            })
+            .catch(() => setInitialMessages([]));
+    }, []);
+
+    const handleMessagesChange = async (messages: any[]) => {
+        // Keep only last 40 messages to avoid bloat
+        const trimmed = messages.slice(-40);
+        await supabase.from('user_data').upsert(
+            { key: HISTORY_KEY, value: trimmed, updated_at: new Date().toISOString() },
+            { onConflict: 'key' }
+        );
+    };
+
+    const handleClear = async () => {
+        await supabase.from('user_data').upsert(
+            { key: HISTORY_KEY, value: [], updated_at: new Date().toISOString() },
+            { onConflict: 'key' }
+        );
+        setInitialMessages([]);
+        setChatKey(k => k + 1);
+    };
+
+    return (
+        <div className="fixed bottom-6 right-6 z-[80] flex flex-col items-end">
+            {isOpen && initialMessages !== null && (
+                <ChatWindow
+                    key={chatKey}
+                    initialMessages={initialMessages}
+                    onMessagesChange={handleMessagesChange}
+                    onClear={handleClear}
+                />
             )}
 
-            {/* Floating Action Button */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className={cn(
-                    "h-14 w-14 rounded-full flex items-center justify-center shadow-2xl shadow-orange-500/20 transition-all duration-300 hover:scale-105 active:scale-95 group border relative",
-                    isOpen
-                        ? "bg-stone-800 border-stone-700 text-stone-400"
-                        : "bg-stone-900 border-orange-500/50 text-orange-400 overflow-hidden"
-                )}
+                className="h-12 w-12 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95"
+                style={{
+                    background: isOpen ? 'hsl(24 7% 16%)' : '#e06d34',
+                    border: `1px solid ${isOpen ? 'hsl(24 6% 22%)' : '#c85a24'}`,
+                    color: '#fff',
+                    boxShadow: isOpen ? 'none' : '0 4px 24px rgba(224, 109, 52, 0.35)',
+                }}
             >
-                {!isOpen && (
-                    <div className="absolute inset-0 bg-orange-500/10 animate-pulse rounded-full" />
-                )}
-                {isOpen ? (
-                    <X className="w-6 h-6" />
-                ) : (
-                    <MessageSquare className="w-6 h-6 group-hover:text-orange-300 transition-colors relative z-10" />
-                )}
+                {isOpen ? <X className="w-4.5 h-4.5" /> : <MessageSquare className="w-4.5 h-4.5" />}
             </button>
         </div>
     );
