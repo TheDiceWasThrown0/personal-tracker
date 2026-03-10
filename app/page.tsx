@@ -17,28 +17,19 @@ import { GlobalDiary } from "@/components/GlobalDiary"
 import { AIAssistant } from "@/components/AIAssistant"
 import { LayoutGrid, Map, Lock, Activity, Cookie, CalendarDays, ListTodo } from "lucide-react"
 import { cn } from "@/lib/utils"
-// DnD Kit Imports
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
-import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, horizontalListSortingStrategy, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core'
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 
-// Component for Sortable Tab
 function SortableTab({ tab, isActive, onClick }: { tab: any, isActive: boolean, onClick: () => void }) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: tab.id });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: tab.id })
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.5 : 1,
+    opacity: isDragging ? 0.4 : 1,
     zIndex: isDragging ? 50 : 'auto',
-  };
+  }
 
   return (
     <button
@@ -48,67 +39,49 @@ function SortableTab({ tab, isActive, onClick }: { tab: any, isActive: boolean, 
       {...listeners}
       onClick={onClick}
       className={cn(
-        "flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all transform hover:translate-x-1 border w-full text-left touch-none",
+        "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all w-full text-left touch-none group",
         isActive
-          ? "bg-stone-800 border-stone-600 shadow-lg text-stone-100"
-          : "bg-transparent border-transparent text-stone-400 hover:bg-stone-800/40 hover:text-stone-300"
+          ? "bg-white/[0.06] text-[#e8e0d6]"
+          : "text-[#7a7168] hover:text-[#c8bfb5] hover:bg-white/[0.03]"
       )}
     >
-      <div
-        className={cn(
-          "p-2 rounded-lg border",
-          isActive ? "bg-stone-700 border-stone-500 text-orange-400" : "border-stone-800 bg-stone-900 " + tab.color.split(' ')[1] // Extract text color
-        )}
-      >
-        <tab.icon className="w-4 h-4" />
-      </div>
+      <tab.icon className={cn("w-4 h-4 shrink-0 transition-colors", isActive ? "text-[#e06d34]" : "text-[#5a5148] group-hover:text-[#9a8f84]")} />
       <span className="truncate">{tab.label}</span>
-
-      {/* Active Indicator Dot */}
-      {isActive && (
-        <div className="ml-auto w-1.5 h-1.5 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.8)]" />
-      )}
+      {isActive && <div className="ml-auto w-1 h-4 rounded-full bg-[#e06d34]" />}
     </button>
-  );
+  )
 }
 
-type Tab = "dashboard" | "routine" | "planner" | "roadmap" | "fitness" | "cookie";
+type Tab = "dashboard" | "routine" | "planner" | "roadmap" | "fitness" | "cookie"
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<Tab>("dashboard")
   const [isUnlocked, setIsUnlocked] = useLocalStorage<boolean>("shijun-access-granted", false)
   const [isMounted, setIsMounted] = useState(false)
-
-  // State for Tabs Order - Synced
   const [tabsOrder, setTabsOrder] = useSyncedState<string[]>("tabs_order_v2", ["dashboard", "routine", "planner", "roadmap", "fitness", "cookie"])
 
-  useEffect(() => {
-    setIsMounted(true)
-  }, [])
+  useEffect(() => { setIsMounted(true) }, [])
 
-  // Dnd Sensors
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   )
 
   const tabsPool = {
-    dashboard: { id: "dashboard", label: "Overview", icon: LayoutGrid, color: "bg-orange-900/40 text-orange-200 border-orange-500/30 hover:bg-orange-900/60" },
-    routine: { id: "routine", label: "Daily Routine", icon: ListTodo, color: "bg-cyan-900/40 text-cyan-200 border-cyan-500/30 hover:bg-cyan-900/60" },
-    planner: { id: "planner", label: "Planner", icon: CalendarDays, color: "bg-purple-900/40 text-purple-200 border-purple-500/30 hover:bg-purple-900/60" },
-    roadmap: { id: "roadmap", label: "Path", icon: Map, color: "bg-yellow-900/40 text-yellow-200 border-yellow-500/30 hover:bg-yellow-900/60" },
-    fitness: { id: "fitness", label: "Bio-Infrastructure", icon: Activity, color: "bg-rose-900/40 text-rose-200 border-rose-500/30 hover:bg-rose-900/60" },
-    cookie: { id: "cookie", label: "Cookies", icon: Cookie, color: "bg-amber-900/40 text-amber-200 border-amber-500/30 hover:bg-amber-900/60" },
+    dashboard: { id: "dashboard", label: "Overview",          icon: LayoutGrid },
+    routine:   { id: "routine",   label: "Daily Routine",     icon: ListTodo   },
+    planner:   { id: "planner",   label: "Planner",           icon: CalendarDays },
+    roadmap:   { id: "roadmap",   label: "Path",              icon: Map        },
+    fitness:   { id: "fitness",   label: "Bio-Infrastructure", icon: Activity  },
+    cookie:    { id: "cookie",    label: "Cookies",           icon: Cookie     },
   }
 
-  // Derived tabs list based on order
   const tabs = tabsOrder.map(id => tabsPool[id as keyof typeof tabsPool]).filter(Boolean)
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event
-
     if (active.id !== over?.id) {
-      setTabsOrder((items) => {
+      setTabsOrder(items => {
         const oldIndex = items.indexOf(active.id as string)
         const newIndex = items.indexOf(over?.id as string)
         return arrayMove(items, oldIndex, newIndex)
@@ -116,133 +89,96 @@ export default function Home() {
     }
   }
 
-  const handleTabClick = (tabId: Tab) => {
-    setActiveTab(tabId)
-  }
-
-  if (isMounted && !isUnlocked) {
-    return <LockScreen onUnlock={() => setIsUnlocked(true)} />
-  }
-
+  if (isMounted && !isUnlocked) return <LockScreen onUnlock={() => setIsUnlocked(true)} />
   if (!isMounted) return null
-
-  const handleLogout = () => {
-    setIsUnlocked(false)
-  }
 
   const ActiveIcon = tabsPool[activeTab].icon
 
   return (
-    <main className="flex flex-col lg:flex-row h-screen font-sans selection:bg-orange-500/30 selection:text-orange-100 overflow-hidden bg-stone-950">
+    <main className="flex flex-col lg:flex-row h-screen overflow-hidden" style={{ background: 'hsl(24 8% 8%)', color: 'hsl(30 18% 88%)' }}>
 
-      {/* Sidebar Navigation */}
-      <aside className="hidden lg:flex w-full lg:w-72 bg-stone-900/50 border-r border-stone-800 flex-col flex-shrink-0 relative z-20 overflow-y-auto lg:overflow-y-visible">
-        <div className="p-6 flex flex-col gap-6">
+      {/* Sidebar */}
+      <aside className="hidden lg:flex w-64 flex-col flex-shrink-0 relative z-20" style={{ background: 'hsl(24 7% 10%)', borderRight: '1px solid hsl(24 6% 15%)' }}>
 
-          {/* Header Area in Sidebar */}
-          <div className="flex flex-col items-center lg:items-start border-b border-stone-800 pb-6">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="relative w-12 h-12 -rotate-12 hover:rotate-0 transition-transform">
-                <Image src="/duck_w_knife_transparent.png" alt="Duck with Knife" fill className="object-contain drop-shadow-md" />
-              </div>
-              <h1 className="text-xl font-black tracking-tighter text-stone-200 leading-tight">
-                Shijun <span className="text-orange-500">&</span> Giorgia
-              </h1>
-            </div>
-            <p className="text-xs font-mono text-stone-500 pl-1">Room 🍂 Analysis & Ops</p>
+        {/* Logo */}
+        <div className="px-5 py-5 flex items-center gap-3" style={{ borderBottom: '1px solid hsl(24 6% 15%)' }}>
+          <div className="relative w-8 h-8 shrink-0">
+            <Image src="/duck_w_knife_transparent.png" alt="logo" fill className="object-contain" />
           </div>
-
-          {/* Navigation Items */}
-          <nav className="flex-1 flex flex-col gap-2">
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragEnd={handleDragEnd}
-            >
-              <SortableContext
-                items={tabsOrder}
-                strategy={verticalListSortingStrategy}
-              >
-                {tabs.map((tab) => (
-                  <SortableTab
-                    key={tab.id}
-                    tab={tab}
-                    isActive={activeTab === tab.id}
-                    onClick={() => handleTabClick(tab.id as Tab)}
-                  />
-                ))}
-              </SortableContext>
-            </DndContext>
-          </nav>
+          <div>
+            <h1 className="text-sm font-semibold leading-tight" style={{ color: 'hsl(30 18% 88%)' }}>
+              Shijun <span style={{ color: '#e06d34' }}>&</span> Giorgia
+            </h1>
+            <p className="text-[11px] mt-0.5" style={{ color: 'hsl(30 8% 42%)' }}>Personal OS</p>
+          </div>
         </div>
 
-        {/* Sidebar Footer */}
-        <div className="mt-auto p-6 border-t border-stone-800">
-          <div className="bg-stone-900 rounded-xl p-4 border border-stone-800 space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="text-xs text-stone-500 font-mono">
-                <p>TOKYO, JP</p>
-                <p>35.6°N 139.6°E</p>
-              </div>
-              <button
-                onClick={handleLogout}
-                className="p-2 rounded-lg hover:bg-stone-800 text-stone-600 hover:text-red-400 transition-colors"
-                title="Lock Session"
-              >
-                <Lock className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-          <p className="text-[10px] text-stone-700 text-center mt-4 font-bold uppercase tracking-widest">
-            © 2026 - 2030 USER
-          </p>
+        {/* Nav */}
+        <nav className="flex-1 px-3 py-4 overflow-y-auto">
+          <p className="px-3 mb-2 text-[10px] font-semibold uppercase tracking-widest" style={{ color: 'hsl(30 8% 36%)' }}>Navigation</p>
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={tabsOrder} strategy={verticalListSortingStrategy}>
+              {tabs.map(tab => (
+                <SortableTab
+                  key={tab.id}
+                  tab={tab}
+                  isActive={activeTab === tab.id}
+                  onClick={() => setActiveTab(tab.id as Tab)}
+                />
+              ))}
+            </SortableContext>
+          </DndContext>
+        </nav>
+
+        {/* Footer */}
+        <div className="px-5 py-4 flex items-center justify-between" style={{ borderTop: '1px solid hsl(24 6% 15%)' }}>
+          <span className="text-[11px]" style={{ color: 'hsl(30 8% 36%)' }}>Tokyo, JP</span>
+          <button
+            onClick={() => setIsUnlocked(false)}
+            className="p-1.5 rounded-md transition-colors"
+            style={{ color: 'hsl(30 8% 40%)' }}
+            onMouseEnter={e => (e.currentTarget.style.color = '#e06d34')}
+            onMouseLeave={e => (e.currentTarget.style.color = 'hsl(30 8% 40%)')}
+            title="Lock"
+          >
+            <Lock className="w-3.5 h-3.5" />
+          </button>
         </div>
       </aside>
 
-      {/* Main Content Area */}
-      <div className="flex-1 relative overflow-hidden flex flex-col bg-background pb-24 lg:pb-0">
-        {/* Projected Screen Effect / Header for Content */}
-        <div className="h-16 border-b border-stone-800 flex items-center justify-between px-8 bg-stone-900/50 backdrop-blur-sm sticky top-0 z-10">
-          <h2 className="text-xl font-bold text-stone-200 flex items-center gap-2">
-            <div className={`p-1.5 rounded-md ${tabsPool[activeTab].color.split(' ')[0]} bg-opacity-20`}>
-              <ActiveIcon className={`w-5 h-5 ${tabsPool[activeTab].color.split(' ')[1]}`} />
-            </div>
-            {tabsPool[activeTab].label}
-          </h2>
-          <div className="flex items-center gap-4">
-            {/* Could put quick actions or breadcrumbs here */}
-            <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-            <span className="text-xs font-mono text-stone-500">SYSTEM ONLINE</span>
+      {/* Main content */}
+      <div className="flex-1 relative overflow-hidden flex flex-col pb-20 lg:pb-0">
+
+        {/* Top bar */}
+        <div className="h-14 flex items-center justify-between px-6 shrink-0 sticky top-0 z-10" style={{ background: 'hsl(24 7% 10%)', borderBottom: '1px solid hsl(24 6% 15%)' }}>
+          <div className="flex items-center gap-2.5">
+            <ActiveIcon className="w-4 h-4" style={{ color: '#e06d34' }} />
+            <span className="text-sm font-semibold" style={{ color: 'hsl(30 18% 88%)' }}>{tabsPool[activeTab].label}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+            <span className="text-[11px] font-mono" style={{ color: 'hsl(30 8% 40%)' }}>online</span>
           </div>
         </div>
 
-        {/* Content Scroll Area */}
-        <div className="flex-1 overflow-y-auto p-6 lg:p-12 scroll-smooth">
-          <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in zoom-in-95 duration-500">
+        {/* Scroll area */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="max-w-6xl mx-auto px-6 py-8 lg:px-10 lg:py-10 space-y-10 animate-in fade-in duration-300">
 
             {activeTab === "dashboard" && (
-              <div className="space-y-12">
+              <div className="space-y-10">
                 <HeroSection />
                 <StatusDashboard />
               </div>
             )}
 
             {activeTab === "routine" && (
-              <div className="space-y-12">
-                <div className="bg-stone-900/40 w-fit px-4 py-2 rounded-full border border-cyan-500/30 shadow-sm mx-auto mb-8 backdrop-blur-sm">
-                  <h2 className="text-xl font-extrabold text-stone-300 flex items-center gap-2">
-                    <ListTodo className="w-5 h-5 text-cyan-400" /> Daily Protocol
-                  </h2>
-                </div>
-
+              <div className="space-y-8">
+                <SectionHeader label="Daily Protocol" />
                 <div className="grid md:grid-cols-2 gap-8 items-start">
                   <DailySchedule />
-                  <div className="space-y-6 flex flex-col items-center">
-                    <div className="bg-stone-900/40 w-fit px-4 py-2 rounded-full border border-orange-500/30 shadow-sm backdrop-blur-sm mb-4">
-                      <h2 className="text-xl font-extrabold text-stone-300 flex items-center gap-2">
-                        📅 Daily Habits
-                      </h2>
-                    </div>
+                  <div className="space-y-4">
+                    <SectionHeader label="Daily Habits" small />
                     <DailyRoutine />
                   </div>
                 </div>
@@ -250,40 +186,28 @@ export default function Home() {
             )}
 
             {activeTab === "planner" && (
-              <div className="space-y-6">
-                <div className="bg-stone-900/40 w-fit px-4 py-2 rounded-full border border-purple-500/30 shadow-sm mx-auto mb-8 backdrop-blur-sm">
-                  <h2 className="text-xl font-extrabold text-stone-300 flex items-center gap-2">
-                    📅 Strategic Operations
-                  </h2>
-                </div>
+              <div className="space-y-8">
+                <SectionHeader label="Strategic Operations" />
                 <CalendarSystem />
               </div>
             )}
 
             {activeTab === "roadmap" && (
-              <div className="space-y-6">
-                <div className="bg-stone-900/40 w-fit px-4 py-2 rounded-full border border-yellow-500/30 shadow-sm backdrop-blur-sm">
-                  <h2 className="text-xl font-extrabold text-stone-300 flex items-center gap-2">
-                    🌱 The Journey
-                  </h2>
-                </div>
+              <div className="space-y-8">
+                <SectionHeader label="The Journey" />
                 <RoadmapTimeline />
               </div>
             )}
 
             {activeTab === "fitness" && (
-              <div className="space-y-6">
-                <div className="bg-stone-900/40 w-fit px-4 py-2 rounded-full border border-rose-500/30 shadow-sm mx-auto mb-8 backdrop-blur-sm">
-                  <h2 className="text-xl font-extrabold text-stone-300 flex items-center gap-2">
-                    🧬 Bio-Infrastructure
-                  </h2>
-                </div>
+              <div className="space-y-8">
+                <SectionHeader label="Bio-Infrastructure" />
                 <GymTracker />
               </div>
             )}
 
             {activeTab === "cookie" && (
-              <div className="space-y-6 mt-12">
+              <div className="space-y-8 pt-2">
                 <CookieTracker />
               </div>
             )}
@@ -292,23 +216,22 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Mobile Bottom Navigation */}
-      <nav className="lg:hidden fixed bottom-6 left-4 right-4 h-16 bg-stone-900/90 backdrop-blur-xl border border-stone-800/50 rounded-2xl shadow-2xl z-50 px-2 flex items-center justify-between overflow-x-auto no-scrollbar">
-        {tabs.map((tab) => {
-          const Icon = tab.icon;
-          const active = activeTab === tab.id;
+      {/* Mobile bottom nav */}
+      <nav className="lg:hidden fixed bottom-4 left-4 right-4 z-50 flex items-center justify-around rounded-2xl px-2 py-2" style={{ background: 'hsl(24 7% 12%)', border: '1px solid hsl(24 6% 18%)' }}>
+        {tabs.map(tab => {
+          const Icon = tab.icon
+          const active = activeTab === tab.id
           return (
             <button
               key={tab.id}
-              onClick={() => handleTabClick(tab.id as Tab)}
-              className={`flex flex-col items-center justify-center min-w-[3.5rem] h-12 rounded-xl transition-all duration-300 relative ${active ? 'bg-stone-800 text-orange-500 -translate-y-2 shadow-lg border border-stone-700' : 'text-stone-500 hover:text-stone-300'}`}
+              onClick={() => setActiveTab(tab.id as Tab)}
+              className="flex flex-col items-center justify-center min-w-[3rem] h-11 rounded-xl transition-all"
+              style={{
+                background: active ? 'hsl(24 7% 18%)' : 'transparent',
+                color: active ? '#e06d34' : 'hsl(30 8% 45%)'
+              }}
             >
-              <Icon className={`w-5 h-5 ${active ? '' : 'opacity-70'}`} />
-              {active && (
-                <span className="absolute -bottom-5 text-[9px] font-bold tracking-wide text-stone-400 bg-stone-900 px-2 py-0.5 rounded-md border border-stone-800">
-                  {tab.label}
-                </span>
-              )}
+              <Icon className="w-4.5 h-4.5" />
             </button>
           )
         })}
@@ -317,9 +240,22 @@ export default function Home() {
       {/* Global Diary */}
       <GlobalDiary />
 
-      {/* AI Assistant Overlay */}
+      {/* AI Assistant */}
       <AIAssistant />
     </main>
   )
 }
 
+function SectionHeader({ label, small }: { label: string; small?: boolean }) {
+  return (
+    <div className="flex items-center gap-3">
+      <h2
+        className={cn("font-semibold", small ? "text-base" : "text-lg")}
+        style={{ color: 'hsl(30 18% 75%)' }}
+      >
+        {label}
+      </h2>
+      <div className="flex-1 h-px" style={{ background: 'hsl(24 6% 17%)' }} />
+    </div>
+  )
+}
