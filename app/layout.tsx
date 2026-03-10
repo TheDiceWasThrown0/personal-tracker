@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Nunito } from "next/font/google";
-import { QuickDump } from "@/components/QuickDump";
 import "./globals.css";
 
 const nunito = Nunito({
@@ -25,7 +24,6 @@ export default function RootLayout({
         className={`${nunito.variable} antialiased bg-background text-foreground relative`}
       >
         {children}
-        <QuickDump />
       </body>
     </html>
   );
