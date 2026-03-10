@@ -67,7 +67,7 @@ export function AIAssistant() {
     };
 
     return (
-        <div className="float-bottom" style={{ position: 'fixed', right: '1.5rem', zIndex: 80, display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+        <div className="fixed bottom-24 lg:bottom-6 right-6 z-[80] flex flex-col items-end">
 
             {/* Chat window */}
             {isOpen && (
