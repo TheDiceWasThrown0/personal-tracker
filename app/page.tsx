@@ -48,7 +48,6 @@ function SortableTab({ tab, isActive, onClick }: { tab: any; isActive: boolean; 
         ...style,
         background: isActive ? C.fg : 'transparent',
         color: isActive ? C.bg : C.muted,
-        borderLeft: `3px solid ${isActive ? C.red : 'transparent'}`,
         padding: '0.6rem 0.875rem',
         width: '100%',
         textAlign: 'left',
@@ -62,7 +61,6 @@ function SortableTab({ tab, isActive, onClick }: { tab: any; isActive: boolean; 
         alignItems: 'center',
         gap: '0.625rem',
         transition: 'all 0.1s',
-        border: 'none',
         borderLeft: `3px solid ${isActive ? C.red : 'transparent'}`,
         touchAction: 'none',
       }}
