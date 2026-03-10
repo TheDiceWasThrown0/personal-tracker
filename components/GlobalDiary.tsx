@@ -41,7 +41,7 @@ export function GlobalDiary() {
             <SheetTrigger asChild>
                 <Button
                     size="icon"
-                    className="fixed bottom-24 right-20 h-14 w-14 rounded-full shadow-2xl bg-stone-800 hover:bg-stone-700 text-orange-400 border-2 border-stone-600 z-50 transition-transform hover:scale-110"
+                    className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-2xl bg-stone-800 hover:bg-stone-700 text-orange-400 border-2 border-stone-600 z-50 transition-transform hover:scale-110"
                 >
                     <Book className="w-6 h-6" />
                 </Button>
