@@ -132,9 +132,15 @@ export function AIAssistant() {
     const [chatKey, setChatKey] = useState(0);
 
     useEffect(() => {
-        supabase.from('user_data').select('value').eq('key', HISTORY_KEY).single()
-            .then(({ data }) => setInitialMessages(Array.isArray(data?.value) ? data.value : []))
-            .catch(() => setInitialMessages([]));
+        const load = async () => {
+            try {
+                const { data } = await supabase.from('user_data').select('value').eq('key', HISTORY_KEY).single();
+                setInitialMessages(Array.isArray(data?.value) ? data.value : []);
+            } catch {
+                setInitialMessages([]);
+            }
+        };
+        load();
     }, []);
 
     const handleMessagesChange = async (messages: any[]) => {
