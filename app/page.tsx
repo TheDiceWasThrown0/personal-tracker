@@ -12,9 +12,9 @@ import GymTracker from "@/components/GymTracker"
 import { CookieTracker } from "@/components/CookieTracker"
 import LockScreen from "@/components/LockScreen"
 import { CalendarSystem } from "@/components/CalendarSystem"
-import { GlobalDiary } from "@/components/GlobalDiary"
 import { DailySchedule } from "@/components/DailySchedule"
 import { AIAssistant } from "@/components/AIAssistant"
+import { QuickJournal } from "@/components/QuickJournal"
 import { LayoutGrid, Map, Lock, Activity, Cookie, CalendarDays, ListTodo } from "lucide-react"
 import { cn } from "@/lib/utils"
 // DnD Kit Imports
@@ -288,9 +288,6 @@ export default function Home() {
               </div>
             )}
 
-            <div className="mt-12">
-              <GlobalDiary />
-            </div>
           </div>
         </div>
       </div>
@@ -316,6 +313,9 @@ export default function Home() {
           )
         })}
       </nav>
+
+      {/* Quick Journal Overlay */}
+      <QuickJournal />
 
       {/* AI Assistant Overlay */}
       <AIAssistant />

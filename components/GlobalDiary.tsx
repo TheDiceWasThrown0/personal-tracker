@@ -39,12 +39,7 @@ export function GlobalDiary() {
     return (
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
-                <Button
-                    size="icon"
-                    className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-2xl bg-stone-800 hover:bg-stone-700 text-orange-400 border-2 border-stone-600 z-50 transition-transform hover:scale-110"
-                >
-                    <Book className="w-6 h-6" />
-                </Button>
+                <button className="hidden" aria-hidden />
             </SheetTrigger>
             <SheetContent className="w-[400px] sm:w-[540px] bg-stone-50 border-l border-stone-200 flex flex-col h-full">
                 <SheetHeader className="pb-4 border-b border-stone-100">
