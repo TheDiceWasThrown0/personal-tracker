@@ -33,10 +33,9 @@ export function GlobalDiary() {
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
                 <button
-                    className="btn-wire"
+                    className="btn-wire float-bottom"
                     style={{
                         position: 'fixed',
-                        bottom: '1.5rem',
                         right: '5rem',
                         width: '44px',
                         height: '44px',

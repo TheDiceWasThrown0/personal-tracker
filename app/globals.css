@@ -127,3 +127,13 @@ body {
 
 /* Selection */
 ::selection { background: #bf1a0a; color: #f5f0e8; }
+
+/* Floating buttons — above mobile nav on small screens, normal on desktop */
+.float-bottom {
+  bottom: 5rem;
+}
+@media (min-width: 1024px) {
+  .float-bottom {
+    bottom: 1.5rem;
+  }
+}

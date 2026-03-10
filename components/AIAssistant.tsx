@@ -67,7 +67,7 @@ export function AIAssistant() {
     };
 
     return (
-        <div style={{ position: 'fixed', bottom: '1.5rem', right: '1.5rem', zIndex: 80, display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+        <div className="float-bottom" style={{ position: 'fixed', right: '1.5rem', zIndex: 80, display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
 
             {/* Chat window */}
             {isOpen && (
