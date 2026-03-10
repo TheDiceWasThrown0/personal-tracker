@@ -8,23 +8,24 @@ import { supabase } from '@/lib/supabaseClient';
 const C = { bg: '#f5f0e8', fg: '#1a1612', red: '#bf1a0a', muted: '#7a7060', border: '#1a1612', cardBg: '#ede8de', softBorder: '#c8c0b0' }
 const HISTORY_KEY = 'ai_chat_history_v1';
 
-function ChatWindow({ initialMessages, onMessagesChange, onClear }: {
-    initialMessages: any[];
+function ChatWindow({ pastMessages, onMessagesChange, onClear }: {
+    pastMessages: any[];
     onMessagesChange: (msgs: any[]) => void;
     onClear: () => void;
 }) {
     const [input, setInput] = useState('');
-    const { messages, sendMessage, status } = useChat({ initialMessages });
+    const { messages, sendMessage, status } = useChat();
     const isLoading = status === 'submitted' || status === 'streaming';
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const allMessages = [...pastMessages, ...messages];
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [messages]);
+    }, [allMessages.length]);
 
     useEffect(() => {
         if (status === 'ready' && messages.length > 0) {
-            onMessagesChange(messages);
+            onMessagesChange([...pastMessages, ...messages]);
         }
     }, [status]);
 
@@ -64,7 +65,7 @@ function ChatWindow({ initialMessages, onMessagesChange, onClear }: {
 
             {/* Messages */}
             <div style={{ flex: 1, overflowY: 'auto', padding: '0.875rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                {messages.length === 0 ? (
+                {allMessages.length === 0 ? (
                     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', opacity: 0.4 }}>
                         <Terminal style={{ width: '24px', height: '24px', color: C.muted }} />
                         <p style={{ fontSize: '0.65rem', color: C.muted, textAlign: 'center', lineHeight: 1.6 }}>
@@ -72,7 +73,7 @@ function ChatWindow({ initialMessages, onMessagesChange, onClear }: {
                         </p>
                     </div>
                 ) : (
-                    messages.map((m: any) => (
+                    allMessages.map((m: any) => (
                         <div key={m.id} style={{ display: 'flex', justifyContent: m.role === 'user' ? 'flex-end' : 'flex-start' }}>
                             <div style={{
                                 maxWidth: '85%',
@@ -156,7 +157,7 @@ export function AIAssistant() {
     return (
         <div style={{ position: 'fixed', bottom: '1.5rem', right: '1.5rem', zIndex: 80, display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
             {isOpen && initialMessages !== null && (
-                <ChatWindow key={chatKey} initialMessages={initialMessages} onMessagesChange={handleMessagesChange} onClear={handleClear} />
+                <ChatWindow key={chatKey} pastMessages={initialMessages} onMessagesChange={handleMessagesChange} onClear={handleClear} />
             )}
 
             <button
