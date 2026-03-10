@@ -2,10 +2,10 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useChat } from '@ai-sdk/react';
-import { MessageSquare, X, Send, Sparkles, Loader2, Trash2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { MessageSquare, X, Send, Terminal, Loader2, Trash2 } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 
+const C = { bg: '#f5f0e8', fg: '#1a1612', red: '#bf1a0a', muted: '#7a7060', border: '#1a1612', cardBg: '#ede8de', softBorder: '#c8c0b0' }
 const HISTORY_KEY = 'ai_chat_history_v1';
 
 function ChatWindow({ initialMessages, onMessagesChange, onClear }: {
@@ -22,7 +22,6 @@ function ChatWindow({ initialMessages, onMessagesChange, onClear }: {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
 
-    // Persist when a response completes
     useEffect(() => {
         if (status === 'ready' && messages.length > 0) {
             onMessagesChange(messages);
@@ -38,57 +37,56 @@ function ChatWindow({ initialMessages, onMessagesChange, onClear }: {
 
     return (
         <div
-            className="mb-4 w-[360px] sm:w-[420px] flex flex-col overflow-hidden animate-in slide-in-from-bottom-4 fade-in duration-200"
             style={{
-                height: '520px',
+                marginBottom: '0.75rem',
+                width: '380px',
+                height: '500px',
                 maxHeight: '80vh',
-                background: 'hsl(24 7% 10%)',
-                border: '1px solid hsl(24 6% 17%)',
-                borderRadius: '1rem',
+                display: 'flex',
+                flexDirection: 'column',
+                background: C.bg,
+                border: `1.5px solid ${C.border}`,
             }}
         >
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 shrink-0" style={{ borderBottom: '1px solid hsl(24 6% 15%)' }}>
-                <div className="flex items-center gap-2.5">
-                    <Sparkles className="w-4 h-4" style={{ color: '#e06d34' }} />
+            <div style={{ padding: '0.6rem 0.875rem', borderBottom: `1.5px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: C.cardBg, flexShrink: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <Terminal style={{ width: '13px', height: '13px', color: C.red }} />
                     <div>
-                        <p className="text-sm font-semibold" style={{ color: 'hsl(30 18% 88%)' }}>Room Assistant</p>
-                        <p className="text-[10px]" style={{ color: 'hsl(30 8% 42%)' }}>Reads & writes your tracker data</p>
+                        <p style={{ fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.fg }}>Room Assistant</p>
+                        <p style={{ fontSize: '0.55rem', color: C.muted, letterSpacing: '0.06em' }}>reads + writes your tracker data</p>
                     </div>
                 </div>
-                <button
-                    onClick={onClear}
-                    className="p-1.5 rounded-md transition-colors"
-                    style={{ color: 'hsl(30 8% 38%)' }}
-                    onMouseEnter={e => (e.currentTarget.style.color = '#e06d34')}
-                    onMouseLeave={e => (e.currentTarget.style.color = 'hsl(30 8% 38%)')}
-                    title="Clear conversation"
-                >
-                    <Trash2 className="w-3.5 h-3.5" />
+                <button onClick={onClear} className="btn-wire" style={{ padding: '0.2rem 0.4rem' }} title="Clear">
+                    <Trash2 style={{ width: '11px', height: '11px' }} />
                 </button>
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
+            <div style={{ flex: 1, overflowY: 'auto', padding: '0.875rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 {messages.length === 0 ? (
-                    <div className="h-full flex flex-col items-center justify-center text-center gap-3 opacity-40">
-                        <Sparkles className="w-8 h-8" style={{ color: '#e06d34' }} />
-                        <p className="text-sm" style={{ color: 'hsl(30 8% 50%)' }}>
-                            Ask me anything about your data.<br />I can read and update your tracker.
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', opacity: 0.4 }}>
+                        <Terminal style={{ width: '24px', height: '24px', color: C.muted }} />
+                        <p style={{ fontSize: '0.65rem', color: C.muted, textAlign: 'center', lineHeight: 1.6 }}>
+                            Ask about your data.<br />I can read and update your tracker.
                         </p>
                     </div>
                 ) : (
                     messages.map((m: any) => (
-                        <div key={m.id} className={cn("flex w-full", m.role === 'user' ? "justify-end" : "justify-start")}>
-                            <div
-                                className="max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed"
-                                style={m.role === 'user'
-                                    ? { background: 'hsl(24 7% 16%)', color: 'hsl(30 18% 88%)', borderBottomRightRadius: '4px' }
-                                    : { background: 'hsl(22 40% 14%)', color: 'hsl(30 25% 85%)', border: '1px solid hsl(22 30% 22%)', borderBottomLeftRadius: '4px' }
-                                }
-                            >
+                        <div key={m.id} style={{ display: 'flex', justifyContent: m.role === 'user' ? 'flex-end' : 'flex-start' }}>
+                            <div style={{
+                                maxWidth: '85%',
+                                padding: '0.5rem 0.75rem',
+                                fontSize: '0.72rem',
+                                lineHeight: 1.6,
+                                background: m.role === 'user' ? C.fg : C.cardBg,
+                                color: m.role === 'user' ? C.bg : C.fg,
+                                border: `1px solid ${m.role === 'user' ? C.fg : C.softBorder}`,
+                                borderLeft: m.role === 'assistant' ? `3px solid ${C.red}` : undefined,
+                                whiteSpace: 'pre-wrap',
+                            }}>
                                 {m.parts?.map((part: any, i: number) => {
-                                    if (part.type === 'text') return <span key={i} style={{ whiteSpace: 'pre-wrap' }}>{part.text}</span>;
+                                    if (part.type === 'text') return <span key={i}>{part.text}</span>;
                                     return null;
                                 })}
                             </div>
@@ -97,38 +95,29 @@ function ChatWindow({ initialMessages, onMessagesChange, onClear }: {
                 )}
 
                 {isLoading && (
-                    <div className="flex justify-start">
-                        <div className="px-3.5 py-2.5 rounded-2xl rounded-bl-sm" style={{ background: 'hsl(22 40% 14%)', border: '1px solid hsl(22 30% 22%)' }}>
-                            <Loader2 className="w-3.5 h-3.5 animate-spin" style={{ color: '#e06d34' }} />
-                        </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                        <div style={{ width: '3px', height: '3px', background: C.red, animation: 'pulse 1s infinite' }} />
+                        <div style={{ width: '3px', height: '3px', background: C.red, animation: 'pulse 1s 0.2s infinite' }} />
+                        <div style={{ width: '3px', height: '3px', background: C.red, animation: 'pulse 1s 0.4s infinite' }} />
                     </div>
                 )}
                 <div ref={messagesEndRef} />
             </div>
 
             {/* Input */}
-            <div className="px-4 py-3 shrink-0" style={{ borderTop: '1px solid hsl(24 6% 15%)' }}>
-                <form onSubmit={handleSubmit} className="flex gap-2">
+            <div style={{ padding: '0.75rem', borderTop: `1.5px solid ${C.border}`, background: C.cardBg, flexShrink: 0 }}>
+                <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end' }}>
                     <input
-                        className="flex-1 text-sm rounded-xl px-3.5 py-2.5 focus:outline-none transition-all"
-                        style={{
-                            background: 'hsl(24 7% 14%)',
-                            border: '1px solid hsl(24 6% 20%)',
-                            color: 'hsl(30 18% 88%)',
-                        }}
+                        className="input-line"
+                        style={{ flex: 1, fontSize: '0.72rem' }}
                         value={input}
-                        placeholder="Ask about your data..."
+                        placeholder="ask about your data..."
                         onChange={e => setInput(e.target.value)}
                         onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit(e as any); } }}
                         disabled={isLoading}
                     />
-                    <button
-                        type="submit"
-                        disabled={isLoading || !input.trim()}
-                        className="rounded-xl px-3.5 flex items-center justify-center transition-all disabled:opacity-40"
-                        style={{ background: '#e06d34', color: '#fff' }}
-                    >
-                        <Send className="w-3.5 h-3.5" />
+                    <button type="submit" disabled={isLoading || !input.trim()} className="btn-wire" style={{ padding: '0.35rem 0.75rem', flexShrink: 0 }}>
+                        <Send style={{ width: '11px', height: '11px' }} />
                     </button>
                 </form>
             </div>
@@ -139,19 +128,15 @@ function ChatWindow({ initialMessages, onMessagesChange, onClear }: {
 export function AIAssistant() {
     const [isOpen, setIsOpen] = useState(false);
     const [initialMessages, setInitialMessages] = useState<any[] | null>(null);
-    const [chatKey, setChatKey] = useState(0); // force remount ChatWindow when clearing
+    const [chatKey, setChatKey] = useState(0);
 
-    // Load history from Supabase on mount
     useEffect(() => {
         supabase.from('user_data').select('value').eq('key', HISTORY_KEY).single()
-            .then(({ data }) => {
-                setInitialMessages(Array.isArray(data?.value) ? data.value : []);
-            })
+            .then(({ data }) => setInitialMessages(Array.isArray(data?.value) ? data.value : []))
             .catch(() => setInitialMessages([]));
     }, []);
 
     const handleMessagesChange = async (messages: any[]) => {
-        // Keep only last 40 messages to avoid bloat
         const trimmed = messages.slice(-40);
         await supabase.from('user_data').upsert(
             { key: HISTORY_KEY, value: trimmed, updated_at: new Date().toISOString() },
@@ -169,27 +154,27 @@ export function AIAssistant() {
     };
 
     return (
-        <div className="fixed bottom-6 right-6 z-[80] flex flex-col items-end">
+        <div style={{ position: 'fixed', bottom: '1.5rem', right: '1.5rem', zIndex: 80, display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
             {isOpen && initialMessages !== null && (
-                <ChatWindow
-                    key={chatKey}
-                    initialMessages={initialMessages}
-                    onMessagesChange={handleMessagesChange}
-                    onClear={handleClear}
-                />
+                <ChatWindow key={chatKey} initialMessages={initialMessages} onMessagesChange={handleMessagesChange} onClear={handleClear} />
             )}
 
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="h-12 w-12 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95"
+                className="btn-wire"
                 style={{
-                    background: isOpen ? 'hsl(24 7% 16%)' : '#e06d34',
-                    border: `1px solid ${isOpen ? 'hsl(24 6% 22%)' : '#c85a24'}`,
-                    color: '#fff',
-                    boxShadow: isOpen ? 'none' : '0 4px 24px rgba(224, 109, 52, 0.35)',
+                    width: '44px',
+                    height: '44px',
+                    padding: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: isOpen ? C.fg : 'transparent',
+                    color: isOpen ? C.bg : C.fg,
+                    borderColor: C.border,
                 }}
             >
-                {isOpen ? <X className="w-4.5 h-4.5" /> : <MessageSquare className="w-4.5 h-4.5" />}
+                {isOpen ? <X style={{ width: '16px', height: '16px' }} /> : <MessageSquare style={{ width: '16px', height: '16px' }} />}
             </button>
         </div>
     );

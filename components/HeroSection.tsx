@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react"
 import { intervalToDuration, type Duration } from "date-fns"
 import { useSyncedState } from "@/hooks/useSyncedState"
-import { Edit2, Check } from "lucide-react"
+import { Edit2, Check, X } from "lucide-react"
 
+const C = { bg: '#f5f0e8', fg: '#1a1612', red: '#bf1a0a', muted: '#7a7060', border: '#1a1612', cardBg: '#ede8de', softBorder: '#c8c0b0' }
 const UNITS = ["years", "months", "days", "hours", "minutes", "seconds"] as const
 
 export function HeroSection() {
@@ -15,15 +16,11 @@ export function HeroSection() {
     const [tempLabel, setTempLabel] = useState(countdownLabel)
     const [tempDate, setTempDate] = useState(targetDateStr)
 
-    const targetDate = new Date(targetDateStr)
-
     useEffect(() => {
+        const targetDate = new Date(targetDateStr)
         const timer = setInterval(() => {
             const now = new Date()
-            if (now >= targetDate) {
-                setTimeLeft({ years: 0, months: 0, days: 0, hours: 0, minutes: 0, seconds: 0 })
-                return
-            }
+            if (now >= targetDate) { setTimeLeft({}); return }
             setTimeLeft(intervalToDuration({ start: now, end: targetDate }))
         }, 1000)
         return () => clearInterval(timer)
@@ -38,71 +35,68 @@ export function HeroSection() {
     }
 
     return (
-        <div
-            className="w-full rounded-2xl overflow-hidden relative group"
-            style={{ background: 'hsl(24 7% 11%)', border: '1px solid hsl(24 6% 17%)' }}
-        >
-            {/* Header bar */}
-            <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid hsl(24 6% 15%)' }}>
+        <div style={{ border: `1.5px solid ${C.border}` }}>
+            {/* Header */}
+            <div style={{ padding: '0.75rem 1.25rem', borderBottom: `1.5px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: C.cardBg }}>
                 {isEditing ? (
                     <input
                         value={tempLabel}
                         onChange={e => setTempLabel(e.target.value)}
-                        className="bg-transparent text-sm font-semibold focus:outline-none w-full mr-4"
-                        style={{ color: 'hsl(30 18% 88%)' }}
+                        className="input-line"
+                        style={{ flex: 1, marginRight: '1rem', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}
                         autoFocus
                     />
                 ) : (
-                    <p className="text-sm font-semibold" style={{ color: 'hsl(30 18% 88%)' }}>{countdownLabel}</p>
+                    <span style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: C.fg }}>
+                        {countdownLabel}
+                    </span>
                 )}
 
-                {isEditing ? (
-                    <div className="flex items-center gap-2 shrink-0">
-                        <input
-                            type="datetime-local"
-                            value={tempDate}
-                            onChange={e => setTempDate(e.target.value)}
-                            className="text-xs rounded-lg px-2 py-1 focus:outline-none"
-                            style={{ background: 'hsl(24 7% 16%)', border: '1px solid hsl(24 6% 22%)', color: 'hsl(30 18% 80%)' }}
-                        />
-                        <button
-                            onClick={handleSave}
-                            className="p-1.5 rounded-lg transition-colors"
-                            style={{ background: '#e06d34', color: '#fff' }}
-                        >
-                            <Check className="w-3.5 h-3.5" />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+                    {isEditing ? (
+                        <>
+                            <input
+                                type="datetime-local"
+                                value={tempDate}
+                                onChange={e => setTempDate(e.target.value)}
+                                className="input-line"
+                                style={{ width: 'auto', fontSize: '0.7rem' }}
+                            />
+                            <button onClick={handleSave} className="btn-wire" style={{ padding: '0.2rem 0.5rem' }}>
+                                <Check style={{ width: '11px', height: '11px' }} />
+                            </button>
+                            <button onClick={() => setIsEditing(false)} className="btn-wire" style={{ padding: '0.2rem 0.5rem' }}>
+                                <X style={{ width: '11px', height: '11px' }} />
+                            </button>
+                        </>
+                    ) : (
+                        <button onClick={() => { setTempLabel(countdownLabel); setTempDate(targetDateStr); setIsEditing(true); }} className="btn-wire" style={{ padding: '0.2rem 0.5rem' }}>
+                            <Edit2 style={{ width: '11px', height: '11px' }} />
                         </button>
-                    </div>
-                ) : (
-                    <button
-                        onClick={() => { setTempLabel(countdownLabel); setTempDate(targetDateStr); setIsEditing(true); }}
-                        className="p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all"
-                        style={{ color: 'hsl(30 8% 45%)' }}
-                        onMouseEnter={e => (e.currentTarget.style.color = '#e06d34')}
-                        onMouseLeave={e => (e.currentTarget.style.color = 'hsl(30 8% 45%)')}
-                    >
-                        <Edit2 className="w-3.5 h-3.5" />
-                    </button>
-                )}
+                    )}
+                </div>
             </div>
 
             {/* Countdown grid */}
-            <div className="grid grid-cols-3 md:grid-cols-6 px-6 py-6 gap-4">
-                {UNITS.map(unit => (
-                    <div key={unit} className="flex flex-col items-center gap-1.5">
-                        <div
-                            className="w-full rounded-xl flex items-center justify-center py-4"
-                            style={{ background: 'hsl(24 7% 14%)', border: '1px solid hsl(24 6% 19%)' }}
-                        >
-                            <span
-                                className="text-2xl md:text-3xl font-bold tabular-nums"
-                                style={{ color: unit === 'days' ? '#e06d34' : 'hsl(30 18% 88%)' }}
-                            >
-                                {/* @ts-ignore */}
-                                {formatTime(timeLeft[unit])}
-                            </span>
-                        </div>
-                        <span className="text-[10px] uppercase tracking-widest font-semibold" style={{ color: 'hsl(30 8% 42%)' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', background: C.bg }}>
+                {UNITS.map((unit, i) => (
+                    <div
+                        key={unit}
+                        style={{
+                            padding: '1.5rem 0.5rem',
+                            textAlign: 'center',
+                            borderRight: i < 5 ? `1.5px solid ${C.border}` : 'none',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                        }}
+                    >
+                        {/* @ts-ignore */}
+                        <span style={{ fontSize: '2.25rem', fontWeight: 800, lineHeight: 1, fontVariantNumeric: 'tabular-nums', color: unit === 'days' ? C.red : C.fg }}>
+                            {formatTime(timeLeft[unit as keyof Duration])}
+                        </span>
+                        <span style={{ fontSize: '0.55rem', fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: C.muted }}>
                             {unit}
                         </span>
                     </div>

@@ -22,33 +22,58 @@ import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, us
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
-function SortableTab({ tab, isActive, onClick }: { tab: any, isActive: boolean, onClick: () => void }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: tab.id })
+const C = {
+  bg: '#f5f0e8',
+  fg: '#1a1612',
+  red: '#bf1a0a',
+  muted: '#7a7060',
+  border: '#1a1612',
+  cardBg: '#ede8de',
+  softBorder: '#c8c0b0',
+}
 
+function SortableTab({ tab, isActive, onClick }: { tab: any; isActive: boolean; onClick: () => void }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: tab.id })
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.4 : 1,
-    zIndex: isDragging ? 50 : 'auto',
+    zIndex: isDragging ? 50 : 'auto' as any,
   }
 
   return (
     <button
       ref={setNodeRef}
-      style={style}
+      style={{
+        ...style,
+        background: isActive ? C.fg : 'transparent',
+        color: isActive ? C.bg : C.muted,
+        borderLeft: `3px solid ${isActive ? C.red : 'transparent'}`,
+        padding: '0.6rem 0.875rem',
+        width: '100%',
+        textAlign: 'left',
+        fontFamily: 'inherit',
+        fontSize: '0.7rem',
+        fontWeight: isActive ? 700 : 500,
+        letterSpacing: '0.06em',
+        textTransform: 'uppercase',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.625rem',
+        transition: 'all 0.1s',
+        border: 'none',
+        borderLeft: `3px solid ${isActive ? C.red : 'transparent'}`,
+        touchAction: 'none',
+      }}
       {...attributes}
       {...listeners}
       onClick={onClick}
-      className={cn(
-        "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all w-full text-left touch-none group",
-        isActive
-          ? "bg-white/[0.06] text-[#e8e0d6]"
-          : "text-[#7a7168] hover:text-[#c8bfb5] hover:bg-white/[0.03]"
-      )}
+      onMouseEnter={e => { if (!isActive) { e.currentTarget.style.color = C.fg; e.currentTarget.style.background = '#e8e2d8'; } }}
+      onMouseLeave={e => { if (!isActive) { e.currentTarget.style.color = C.muted; e.currentTarget.style.background = 'transparent'; } }}
     >
-      <tab.icon className={cn("w-4 h-4 shrink-0 transition-colors", isActive ? "text-[#e06d34]" : "text-[#5a5148] group-hover:text-[#9a8f84]")} />
-      <span className="truncate">{tab.label}</span>
-      {isActive && <div className="ml-auto w-1 h-4 rounded-full bg-[#e06d34]" />}
+      <tab.icon style={{ width: '13px', height: '13px', flexShrink: 0 }} />
+      {tab.label}
     </button>
   )
 }
@@ -68,17 +93,17 @@ export default function Home() {
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   )
 
-  const tabsPool = {
-    dashboard: { id: "dashboard", label: "Overview",          icon: LayoutGrid },
-    routine:   { id: "routine",   label: "Daily Routine",     icon: ListTodo   },
+  const tabsPool: Record<string, { id: string; label: string; icon: any }> = {
+    dashboard: { id: "dashboard", label: "Overview",          icon: LayoutGrid  },
+    routine:   { id: "routine",   label: "Daily Routine",     icon: ListTodo    },
     planner:   { id: "planner",   label: "Planner",           icon: CalendarDays },
-    roadmap:   { id: "roadmap",   label: "Path",              icon: Map        },
-    fitness:   { id: "fitness",   label: "Bio-Infrastructure", icon: Activity  },
-    cookie:    { id: "cookie",    label: "Cookies",           icon: Cookie     },
-    skills:    { id: "skills",    label: "Skills & Academia", icon: BookOpen   },
+    roadmap:   { id: "roadmap",   label: "Path",              icon: Map         },
+    fitness:   { id: "fitness",   label: "Fitness",           icon: Activity    },
+    cookie:    { id: "cookie",    label: "Cookies",           icon: Cookie      },
+    skills:    { id: "skills",    label: "Skills",            icon: BookOpen    },
   }
 
-  const tabs = tabsOrder.map(id => tabsPool[id as keyof typeof tabsPool]).filter(Boolean)
+  const tabs = tabsOrder.map(id => tabsPool[id]).filter(Boolean)
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event
@@ -94,30 +119,36 @@ export default function Home() {
   if (isMounted && !isUnlocked) return <LockScreen onUnlock={() => setIsUnlocked(true)} />
   if (!isMounted) return null
 
-  const ActiveIcon = tabsPool[activeTab].icon
+  const ActiveIcon = tabsPool[activeTab]?.icon ?? LayoutGrid
 
   return (
-    <main className="flex flex-col lg:flex-row h-screen overflow-hidden" style={{ background: 'hsl(24 8% 8%)', color: 'hsl(30 18% 88%)' }}>
+    <main style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: C.bg, color: C.fg, fontFamily: 'inherit' }}>
 
-      {/* Sidebar */}
-      <aside className="hidden lg:flex w-64 flex-col flex-shrink-0 relative z-20" style={{ background: 'hsl(24 7% 10%)', borderRight: '1px solid hsl(24 6% 15%)' }}>
-
+      {/* ── Sidebar ── */}
+      <aside
+        className="hidden lg:flex flex-col flex-shrink-0"
+        style={{ width: '220px', borderRight: `1.5px solid ${C.border}`, background: C.bg }}
+      >
         {/* Logo */}
-        <div className="px-5 py-5 flex items-center gap-3" style={{ borderBottom: '1px solid hsl(24 6% 15%)' }}>
-          <div className="relative w-8 h-8 shrink-0">
-            <Image src="/duck_w_knife_transparent.png" alt="logo" fill className="object-contain" />
+        <div style={{ padding: '1.25rem 1rem', borderBottom: `1.5px solid ${C.border}` }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.25rem' }}>
+            <div style={{ position: 'relative', width: '28px', height: '28px', flexShrink: 0 }}>
+              <Image src="/duck_w_knife_transparent.png" alt="logo" fill style={{ objectFit: 'contain', filter: 'grayscale(1) contrast(1.4)' }} />
+            </div>
+            <span style={{ fontSize: '0.75rem', fontWeight: 800, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+              Shijun <span style={{ color: C.red }}>&</span> Giorgia
+            </span>
           </div>
-          <div>
-            <h1 className="text-sm font-semibold leading-tight" style={{ color: 'hsl(30 18% 88%)' }}>
-              Shijun <span style={{ color: '#e06d34' }}>&</span> Giorgia
-            </h1>
-            <p className="text-[11px] mt-0.5" style={{ color: 'hsl(30 8% 42%)' }}>Personal OS</p>
-          </div>
+          <p style={{ fontSize: '0.6rem', color: C.muted, letterSpacing: '0.1em', textTransform: 'uppercase', paddingLeft: '2.25rem' }}>
+            Personal OS
+          </p>
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 px-3 py-4 overflow-y-auto">
-          <p className="px-3 mb-2 text-[10px] font-semibold uppercase tracking-widest" style={{ color: 'hsl(30 8% 36%)' }}>Navigation</p>
+        <nav style={{ flex: 1, overflowY: 'auto', paddingTop: '0.5rem' }}>
+          <p style={{ fontSize: '0.55rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: C.muted, padding: '0.5rem 1rem 0.35rem' }}>
+            Navigation
+          </p>
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
             <SortableContext items={tabsOrder} strategy={verticalListSortingStrategy}>
               {tabs.map(tab => (
@@ -133,53 +164,53 @@ export default function Home() {
         </nav>
 
         {/* Footer */}
-        <div className="px-5 py-4 flex items-center justify-between" style={{ borderTop: '1px solid hsl(24 6% 15%)' }}>
-          <span className="text-[11px]" style={{ color: 'hsl(30 8% 36%)' }}>Tokyo, JP</span>
+        <div style={{ padding: '0.875rem 1rem', borderTop: `1.5px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span style={{ fontSize: '0.6rem', color: C.muted, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Tokyo, JP</span>
           <button
             onClick={() => setIsUnlocked(false)}
-            className="p-1.5 rounded-md transition-colors"
-            style={{ color: 'hsl(30 8% 40%)' }}
-            onMouseEnter={e => (e.currentTarget.style.color = '#e06d34')}
-            onMouseLeave={e => (e.currentTarget.style.color = 'hsl(30 8% 40%)')}
+            className="btn-wire"
+            style={{ padding: '0.25rem 0.5rem', fontSize: '0.6rem' }}
             title="Lock"
           >
-            <Lock className="w-3.5 h-3.5" />
+            <Lock style={{ width: '11px', height: '11px' }} />
           </button>
         </div>
       </aside>
 
-      {/* Main content */}
-      <div className="flex-1 relative overflow-hidden flex flex-col pb-20 lg:pb-0">
+      {/* ── Main ── */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', paddingBottom: 0 }}>
 
         {/* Top bar */}
-        <div className="h-14 flex items-center justify-between px-6 shrink-0 sticky top-0 z-10" style={{ background: 'hsl(24 7% 10%)', borderBottom: '1px solid hsl(24 6% 15%)' }}>
-          <div className="flex items-center gap-2.5">
-            <ActiveIcon className="w-4 h-4" style={{ color: '#e06d34' }} />
-            <span className="text-sm font-semibold" style={{ color: 'hsl(30 18% 88%)' }}>{tabsPool[activeTab].label}</span>
+        <div style={{ height: '48px', borderBottom: `1.5px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 2rem', flexShrink: 0, background: C.bg }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+            <ActiveIcon style={{ width: '13px', height: '13px', color: C.red }} />
+            <span style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+              {tabsPool[activeTab]?.label}
+            </span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-            <span className="text-[11px] font-mono" style={{ color: 'hsl(30 8% 40%)' }}>online</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <div style={{ width: '6px', height: '6px', background: '#16a34a', flexShrink: 0 }} />
+            <span style={{ fontSize: '0.6rem', color: C.muted, letterSpacing: '0.1em', textTransform: 'uppercase' }}>online</span>
           </div>
         </div>
 
         {/* Scroll area */}
-        <div className="flex-1 overflow-y-auto">
-          <div className="max-w-6xl mx-auto px-6 py-8 lg:px-10 lg:py-10 space-y-10 animate-in fade-in duration-300">
+        <div style={{ flex: 1, overflowY: 'auto' }}>
+          <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '2.5rem 2rem' }}>
 
             {activeTab === "dashboard" && (
-              <div className="space-y-10">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem' }}>
                 <HeroSection />
                 <StatusDashboard />
               </div>
             )}
 
             {activeTab === "routine" && (
-              <div className="space-y-8">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                 <SectionHeader label="Daily Protocol" />
-                <div className="grid md:grid-cols-2 gap-8 items-start">
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
                   <DailySchedule />
-                  <div className="space-y-4">
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                     <SectionHeader label="Daily Habits" small />
                     <DailyRoutine />
                   </div>
@@ -188,34 +219,34 @@ export default function Home() {
             )}
 
             {activeTab === "planner" && (
-              <div className="space-y-8">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                 <SectionHeader label="Strategic Operations" />
                 <CalendarSystem />
               </div>
             )}
 
             {activeTab === "roadmap" && (
-              <div className="space-y-8">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                 <SectionHeader label="The Journey" />
                 <RoadmapTimeline />
               </div>
             )}
 
             {activeTab === "fitness" && (
-              <div className="space-y-8">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                 <SectionHeader label="Bio-Infrastructure" />
                 <GymTracker />
               </div>
             )}
 
             {activeTab === "cookie" && (
-              <div className="space-y-8 pt-2">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', paddingTop: '0.5rem' }}>
                 <CookieTracker />
               </div>
             )}
 
             {activeTab === "skills" && (
-              <div className="space-y-8">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                 <SectionHeader label="Skills & Academia" />
                 <SkillAcademiaTracker />
               </div>
@@ -226,7 +257,10 @@ export default function Home() {
       </div>
 
       {/* Mobile bottom nav */}
-      <nav className="lg:hidden fixed bottom-4 left-4 right-4 z-50 flex items-center justify-around rounded-2xl px-2 py-2" style={{ background: 'hsl(24 7% 12%)', border: '1px solid hsl(24 6% 18%)' }}>
+      <nav
+        className="lg:hidden"
+        style={{ position: 'fixed', bottom: 0, left: 0, right: 0, borderTop: `1.5px solid ${C.border}`, background: C.bg, display: 'flex', zIndex: 50 }}
+      >
         {tabs.map(tab => {
           const Icon = tab.icon
           const active = activeTab === tab.id
@@ -234,13 +268,20 @@ export default function Home() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as Tab)}
-              className="flex flex-col items-center justify-center min-w-[3rem] h-11 rounded-xl transition-all"
               style={{
-                background: active ? 'hsl(24 7% 18%)' : 'transparent',
-                color: active ? '#e06d34' : 'hsl(30 8% 45%)'
+                flex: 1,
+                padding: '0.75rem 0',
+                background: active ? C.fg : 'transparent',
+                color: active ? C.red : C.muted,
+                border: 'none',
+                borderRight: `1px solid ${C.softBorder}`,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
               }}
             >
-              <Icon className="w-4.5 h-4.5" />
+              <Icon style={{ width: '16px', height: '16px' }} />
             </button>
           )
         })}
@@ -257,14 +298,19 @@ export default function Home() {
 
 function SectionHeader({ label, small }: { label: string; small?: boolean }) {
   return (
-    <div className="flex items-center gap-3">
-      <h2
-        className={cn("font-semibold", small ? "text-base" : "text-lg")}
-        style={{ color: 'hsl(30 18% 75%)' }}
-      >
+    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+      <h2 style={{
+        fontSize: small ? '0.65rem' : '0.7rem',
+        fontWeight: 700,
+        letterSpacing: '0.15em',
+        textTransform: 'uppercase',
+        color: C.muted,
+        whiteSpace: 'nowrap',
+        fontFamily: 'inherit',
+      }}>
         {label}
       </h2>
-      <div className="flex-1 h-px" style={{ background: 'hsl(24 6% 17%)' }} />
+      <div style={{ flex: 1, height: '1.5px', background: C.border }} />
     </div>
   )
 }

@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from "react"
 import { useSyncedState } from "@/hooks/useSyncedState"
-import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
-import { Book, ChevronLeft, ChevronRight, Save, Check } from "lucide-react"
+import { BookOpen, ChevronLeft, ChevronRight, Save, Check } from "lucide-react"
 import { format, addDays, subDays, isToday } from "date-fns"
-import { cn } from "@/lib/utils"
+
+const C = { bg: '#f5f0e8', fg: '#1a1612', red: '#bf1a0a', muted: '#7a7060', border: '#1a1612', cardBg: '#ede8de', softBorder: '#c8c0b0' }
 
 type DiaryEntries = Record<string, string>
 
@@ -19,87 +19,118 @@ export function GlobalDiary() {
 
     const dateKey = format(currentDate, "yyyy-MM-dd")
 
-    // Load note when date changes or entries sync
     useEffect(() => {
         setNote(entries[dateKey] || "")
     }, [dateKey, entries, isOpen])
 
     const handleSave = () => {
         setIsSaving(true)
-        setEntries(prev => ({
-            ...prev,
-            [dateKey]: note
-        }))
-        setTimeout(() => setIsSaving(false), 500)
+        setEntries(prev => ({ ...prev, [dateKey]: note }))
+        setTimeout(() => setIsSaving(false), 800)
     }
-
-    const handlePrevDay = () => setCurrentDate(subDays(currentDate, 1))
-    const handleNextDay = () => setCurrentDate(addDays(currentDate, 1))
 
     return (
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
-                <Button
-                    size="icon"
-                    className="fixed bottom-24 right-6 h-14 w-14 rounded-full shadow-2xl bg-stone-800 hover:bg-stone-700 text-orange-400 border-2 border-stone-600 z-[90] transition-transform hover:scale-110 lg:bottom-6"
+                <button
+                    className="btn-wire"
+                    style={{
+                        position: 'fixed',
+                        bottom: '1.5rem',
+                        right: '5rem',
+                        width: '44px',
+                        height: '44px',
+                        padding: 0,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 70,
+                    }}
+                    title="Captain's Log"
                 >
-                    <Book className="w-6 h-6" />
-                </Button>
+                    <BookOpen style={{ width: '16px', height: '16px' }} />
+                </button>
             </SheetTrigger>
-            <SheetContent className="w-[400px] sm:w-[540px] bg-stone-50 border-l border-stone-200 flex flex-col h-full">
-                <SheetHeader className="pb-4 border-b border-stone-100">
-                    <SheetTitle className="flex items-center justify-between text-stone-700">
-                        <div className="flex items-center gap-2">
-                            <Button variant="ghost" size="icon" onClick={handlePrevDay}>
-                                <ChevronLeft className="w-5 h-5" />
-                            </Button>
-                            <span className="font-mono text-lg font-bold min-w-[140px] text-center">
+
+            <SheetContent
+                style={{
+                    width: '480px',
+                    background: C.bg,
+                    borderLeft: `1.5px solid ${C.border}`,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: '100%',
+                    borderRadius: 0,
+                    fontFamily: 'var(--font-jetbrains), monospace',
+                    padding: 0,
+                }}
+            >
+                <SheetHeader style={{ padding: '1rem 1.25rem', borderBottom: `1.5px solid ${C.border}`, background: C.cardBg }}>
+                    <SheetTitle style={{ fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                            <button
+                                onClick={() => setCurrentDate(subDays(currentDate, 1))}
+                                className="btn-wire"
+                                style={{ padding: '0.2rem 0.4rem' }}
+                            >
+                                <ChevronLeft style={{ width: '13px', height: '13px' }} />
+                            </button>
+                            <span style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.08em', color: C.fg, minWidth: '130px', textAlign: 'center' }}>
                                 {format(currentDate, "MMM do, yyyy")}
                             </span>
-                            <Button variant="ghost" size="icon" onClick={handleNextDay} disabled={isToday(currentDate) && false}>
-                                <ChevronRight className="w-5 h-5" />
-                            </Button>
+                            <button
+                                onClick={() => setCurrentDate(addDays(currentDate, 1))}
+                                className="btn-wire"
+                                style={{ padding: '0.2rem 0.4rem' }}
+                            >
+                                <ChevronRight style={{ width: '13px', height: '13px' }} />
+                            </button>
                         </div>
-                        <div className="text-xs font-bold uppercase tracking-widest text-stone-400 flex items-center gap-1">
-                            <Book className="w-4 h-4" /> Captain's Log
-                        </div>
+                        <span style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: C.muted }}>
+                            Captain's Log
+                        </span>
                     </SheetTitle>
                 </SheetHeader>
 
-                <div className="flex-1 py-6 flex flex-col gap-4">
-                    <div className="flex-1 relative">
+                <div style={{ flex: 1, padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    <div style={{ flex: 1, position: 'relative' }}>
                         <textarea
                             value={note}
-                            onChange={(e) => setNote(e.target.value)}
+                            onChange={e => setNote(e.target.value)}
                             placeholder="Write your daily thoughts, ideas, or manifestos here..."
-                            className="w-full h-full resize-none bg-white p-6 rounded-xl border border-stone-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500/50 font-serif text-lg leading-relaxed text-stone-700 custom-scrollbar"
+                            style={{
+                                width: '100%',
+                                height: '100%',
+                                resize: 'none',
+                                background: 'transparent',
+                                border: `1.5px solid ${C.softBorder}`,
+                                borderTop: `1.5px solid ${C.border}`,
+                                outline: 'none',
+                                fontFamily: 'inherit',
+                                fontSize: '0.8rem',
+                                lineHeight: 1.8,
+                                color: C.fg,
+                                padding: '0.875rem',
+                            }}
+                            onFocus={e => { e.currentTarget.style.borderColor = C.border; }}
                             spellCheck={false}
                         />
                         {isSaving && (
-                            <div className="absolute top-4 right-4 text-xs font-bold text-emerald-500 bg-white/80 px-2 py-1 rounded-full border border-emerald-100 animate-pulse">
-                                Saved
+                            <div style={{ position: 'absolute', top: '0.5rem', right: '0.5rem', fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#16a34a', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                                <Check style={{ width: '10px', height: '10px' }} /> Saved
                             </div>
                         )}
                     </div>
 
-                    <Button
+                    <button
                         onClick={handleSave}
-                        className={cn(
-                            "w-full font-bold transition-all",
-                            isSaving ? "bg-emerald-500 hover:bg-emerald-600 text-white" : "bg-stone-800 hover:bg-stone-700 text-orange-100"
-                        )}
+                        className="btn-wire"
                         disabled={note === (entries[dateKey] || "")}
+                        style={{ width: '100%', justifyContent: 'center', padding: '0.6rem' }}
                     >
-                        {isSaving ? (
-                            <>
-                                <Check className="w-4 h-4 mr-2" /> Saved
-                            </>
-                        ) : (
-                            <>
-                                <Save className="w-4 h-4 mr-2" /> Save Entry
-                            </>
-                        )}
-                    </Button>
+                        <Save style={{ width: '12px', height: '12px' }} />
+                        Save Entry
+                    </button>
                 </div>
             </SheetContent>
         </Sheet>

@@ -14,18 +14,9 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-type Period = "1D" | "7D" | "30D"
+const C = { bg: '#f5f0e8', fg: '#1a1612', red: '#bf1a0a', muted: '#7a7060', border: '#1a1612', cardBg: '#ede8de', softBorder: '#c8c0b0' }
 
-function StatCard({ children, accent }: { children: React.ReactNode; accent?: string }) {
-    return (
-        <div
-            className="rounded-xl p-5 flex flex-col gap-3"
-            style={{ background: 'hsl(24 7% 11%)', border: '1px solid hsl(24 6% 17%)' }}
-        >
-            {children}
-        </div>
-    )
-}
+type Period = "1D" | "7D" | "30D"
 
 export default function StatusDashboard() {
     const [netWorth, setNetWorth] = useSyncedState<number>("target_net_worth", 250000)
@@ -48,7 +39,6 @@ export default function StatusDashboard() {
         setTempGpaTarget(gpaTarget); setTempGmatScore(gmatScore)
         setTempGmatExamDate(gmatExamDate); setIsEditing(true)
     }
-
     const handleSave = () => {
         setNetWorth(tempNetWorth); setGpa(tempGpa)
         setGpaTarget(tempGpaTarget); setGmatScore(tempGmatScore)
@@ -61,15 +51,15 @@ export default function StatusDashboard() {
         const daysMap = { "1D": 1, "7D": 7, "30D": 30 }
         const targetDate = subDays(today, daysMap[selectedPeriod])
         const targetStr = format(targetDate, "yyyy-MM-dd")
-        const exact = netWorthHistory.find(h => h.date === targetStr)
+        const exact = netWorthHistory.find((h: any) => h.date === targetStr)
         let pastValue = 0
         if (exact) {
             pastValue = exact.value
         } else {
-            const dates = netWorthHistory.map(h => parseISO(h.date))
+            const dates = netWorthHistory.map((h: any) => parseISO(h.date))
             const closest = closestTo(targetDate, dates)
             if (closest) {
-                const entry = netWorthHistory.find(h => h.date === format(closest, "yyyy-MM-dd"))
+                const entry = netWorthHistory.find((h: any) => h.date === format(closest, "yyyy-MM-dd"))
                 if (entry) pastValue = entry.value
             }
         }
@@ -78,138 +68,123 @@ export default function StatusDashboard() {
         return { value: pct, positive: pct >= 0 }
     }, [netWorth, netWorthHistory, selectedPeriod])
 
-    const inputStyle = {
-        background: 'hsl(24 7% 14%)',
-        border: '1px solid hsl(24 6% 22%)',
-        color: 'hsl(30 18% 88%)',
-        borderRadius: '0.5rem',
-        padding: '0.375rem 0.625rem',
-        outline: 'none',
-        width: '100%',
-    }
-
     return (
-        <>
-            <div className="relative">
-                {/* Edit / Save controls */}
-                <div className="flex items-center justify-between mb-4">
-                    <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'hsl(30 8% 38%)' }}>Status</p>
-                    <div className="flex gap-2">
-                        {isEditing ? (
-                            <>
-                                <button onClick={handleSave} className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg font-medium transition-colors" style={{ background: '#e06d34', color: '#fff' }}>
-                                    <Check className="w-3 h-3" /> Save
-                                </button>
-                                <button onClick={() => setIsEditing(false)} className="text-xs px-3 py-1.5 rounded-lg font-medium transition-colors" style={{ background: 'hsl(24 7% 16%)', color: 'hsl(30 8% 50%)', border: '1px solid hsl(24 6% 20%)' }}>
-                                    <X className="w-3 h-3" />
-                                </button>
-                            </>
-                        ) : (
-                            <button onClick={handleEdit} className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg font-medium transition-colors" style={{ background: 'hsl(24 7% 16%)', color: 'hsl(30 8% 50%)', border: '1px solid hsl(24 6% 20%)' }}>
-                                <Edit2 className="w-3 h-3" /> Edit
-                            </button>
-                        )}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+
+            {/* Section header row */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ fontSize: '0.55rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: C.muted }}>Status</span>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    {isEditing ? (
+                        <>
+                            <button onClick={handleSave} className="btn-wire"><Check style={{ width: '11px', height: '11px' }} /> Save</button>
+                            <button onClick={() => setIsEditing(false)} className="btn-wire"><X style={{ width: '11px', height: '11px' }} /></button>
+                        </>
+                    ) : (
+                        <button onClick={handleEdit} className="btn-wire"><Edit2 style={{ width: '11px', height: '11px' }} /> Edit</button>
+                    )}
+                </div>
+            </div>
+
+            {/* Cards */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', border: `1.5px solid ${C.border}` }}>
+
+                {/* Net Worth */}
+                <div style={{ padding: '1.25rem', borderRight: `1.5px solid ${C.border}` }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                        <span style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: C.muted }}>Net Worth (JPY)</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            {!isEditing && (
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <button className="btn-wire" style={{ padding: '0.15rem 0.4rem', fontSize: '0.6rem' }}>
+                                            {selectedPeriod} <ChevronDown style={{ width: '10px', height: '10px' }} />
+                                        </button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent style={{ background: C.bg, border: `1.5px solid ${C.border}`, borderRadius: 0, minWidth: '120px' }}>
+                                        {(["1D", "7D", "30D"] as Period[]).map(p => (
+                                            <DropdownMenuItem key={p} onClick={() => setSelectedPeriod(p)} style={{ fontSize: '0.7rem', fontFamily: 'inherit', cursor: 'pointer', color: C.fg }}>
+                                                {p === "1D" ? "Yesterday" : p === "7D" ? "Last week" : "Last month"}
+                                            </DropdownMenuItem>
+                                        ))}
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            )}
+                            <Banknote style={{ width: '14px', height: '14px', color: C.red }} />
+                        </div>
+                    </div>
+
+                    {isEditing ? (
+                        <input type="number" value={tempNetWorth} onChange={e => setTempNetWorth(Number(e.target.value))} className="input-line" style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '0.75rem' }} />
+                    ) : (
+                        <p style={{ fontSize: '1.75rem', fontWeight: 800, marginBottom: '0.75rem', fontVariantNumeric: 'tabular-nums' }}>¥{netWorth.toLocaleString()}</p>
+                    )}
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                        {trendData.positive
+                            ? <TrendingUp style={{ width: '12px', height: '12px', color: '#16a34a' }} />
+                            : <TrendingDown style={{ width: '12px', height: '12px', color: C.red }} />
+                        }
+                        <span style={{ fontSize: '0.65rem', fontWeight: 600, color: trendData.positive ? '#16a34a' : C.red }}>
+                            {trendData.value >= 0 ? '+' : ''}{trendData.value.toFixed(2)}% vs {selectedPeriod}
+                        </span>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* GPA */}
+                <div style={{ padding: '1.25rem', borderRight: `1.5px solid ${C.border}` }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                        <span style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: C.muted }}>GPA</span>
+                        <GraduationCap style={{ width: '14px', height: '14px', color: C.fg }} />
+                    </div>
 
-                    {/* Net Worth */}
-                    <StatCard>
-                        <div className="flex items-center justify-between">
-                            <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'hsl(30 8% 42%)' }}>Net Worth (JPY)</span>
-                            <div className="flex items-center gap-2">
-                                {!isEditing && (
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <button className="text-[10px] font-semibold flex items-center gap-1 px-2 py-1 rounded-md" style={{ background: 'hsl(24 7% 16%)', color: 'hsl(30 8% 50%)', border: '1px solid hsl(24 6% 20%)' }}>
-                                                {selectedPeriod} <ChevronDown className="w-3 h-3" />
-                                            </button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent style={{ background: 'hsl(24 7% 13%)', border: '1px solid hsl(24 6% 18%)' }}>
-                                            {(["1D", "7D", "30D"] as Period[]).map(p => (
-                                                <DropdownMenuItem key={p} onClick={() => setSelectedPeriod(p)} className="text-xs font-medium cursor-pointer" style={{ color: 'hsl(30 18% 75%)' }}>
-                                                    {p === "1D" ? "Yesterday" : p === "7D" ? "Last week" : "Last month"}
-                                                </DropdownMenuItem>
-                                            ))}
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-                                )}
-                                <Banknote className="w-4 h-4" style={{ color: '#e06d34' }} />
-                            </div>
+                    {isEditing ? (
+                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', marginBottom: '0.75rem' }}>
+                            <input type="number" step="0.01" value={tempGpa} onChange={e => setTempGpa(Number(e.target.value))} className="input-line" style={{ fontSize: '1.5rem', fontWeight: 800, width: '70px' }} />
+                            <span style={{ color: C.muted, marginBottom: '4px' }}>/</span>
+                            <input type="number" step="0.1" value={tempGpaTarget} onChange={e => setTempGpaTarget(Number(e.target.value))} className="input-line" style={{ width: '60px' }} placeholder="target" />
                         </div>
+                    ) : (
+                        <p style={{ fontSize: '1.75rem', fontWeight: 800, marginBottom: '0.75rem' }}>
+                            {gpa.toFixed(1)} <span style={{ fontSize: '1rem', fontWeight: 400, color: C.muted }}>/ {gpaTarget}</span>
+                        </p>
+                    )}
 
-                        {isEditing ? (
-                            <input type="number" value={tempNetWorth} onChange={e => setTempNetWorth(Number(e.target.value))} style={{ ...inputStyle, fontSize: '1.25rem', fontWeight: 700 }} />
-                        ) : (
-                            <p className="text-2xl font-bold tabular-nums" style={{ color: 'hsl(30 18% 92%)' }}>¥{netWorth.toLocaleString()}</p>
-                        )}
-
-                        <div className="flex items-center gap-1.5">
-                            {trendData.positive
-                                ? <TrendingUp className="w-3 h-3" style={{ color: '#4ade80' }} />
-                                : <TrendingDown className="w-3 h-3" style={{ color: '#f87171' }} />
-                            }
-                            <span className="text-xs font-medium" style={{ color: trendData.positive ? '#4ade80' : '#f87171' }}>
-                                {trendData.value >= 0 ? '+' : ''}{trendData.value.toFixed(2)}% vs {selectedPeriod}
-                            </span>
-                        </div>
-                    </StatCard>
-
-                    {/* GPA */}
-                    <StatCard>
-                        <div className="flex items-center justify-between">
-                            <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'hsl(30 8% 42%)' }}>GPA</span>
-                            <GraduationCap className="w-4 h-4" style={{ color: '#60a5fa' }} />
-                        </div>
-
-                        {isEditing ? (
-                            <div className="flex gap-2 items-center">
-                                <input type="number" step="0.01" value={tempGpa} onChange={e => setTempGpa(Number(e.target.value))} style={{ ...inputStyle, fontSize: '1.25rem', fontWeight: 700, width: '80px' }} />
-                                <span style={{ color: 'hsl(30 8% 42%)' }}>/</span>
-                                <input type="number" step="0.1" value={tempGpaTarget} onChange={e => setTempGpaTarget(Number(e.target.value))} style={{ ...inputStyle, width: '70px' }} placeholder="target" />
-                            </div>
-                        ) : (
-                            <p className="text-2xl font-bold tabular-nums" style={{ color: 'hsl(30 18% 92%)' }}>{gpa.toFixed(1)} <span className="text-base font-normal" style={{ color: 'hsl(30 8% 42%)' }}>/ {gpaTarget}</span></p>
-                        )}
-
-                        <div>
-                            <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: 'hsl(24 7% 18%)' }}>
-                                <div className="h-full rounded-full transition-all" style={{ width: `${(gpa / gpaTarget) * 100}%`, background: '#60a5fa' }} />
-                            </div>
-                            <p className="text-[11px] mt-1.5" style={{ color: 'hsl(30 8% 40%)' }}>Target: {gpaTarget}+ (Sophia)</p>
-                        </div>
-                    </StatCard>
-
-                    {/* GMAT */}
-                    <StatCard>
-                        <div className="flex items-center justify-between">
-                            <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'hsl(30 8% 42%)' }}>GMAT Focus</span>
-                            <ArrowUpRight className="w-4 h-4" style={{ color: '#f59e0b' }} />
-                        </div>
-
-                        {isEditing ? (
-                            <div className="flex flex-col gap-2">
-                                <input type="number" value={tempGmatScore} onChange={e => setTempGmatScore(Number(e.target.value))} style={{ ...inputStyle, fontSize: '1.25rem', fontWeight: 700 }} />
-                                <input type="text" value={tempGmatExamDate} onChange={e => setTempGmatExamDate(e.target.value)} style={inputStyle} placeholder="Exam date e.g. Q3 2027" />
-                            </div>
-                        ) : (
-                            <p className="text-2xl font-bold tabular-nums" style={{ color: 'hsl(30 18% 92%)' }}>{gmatScore}<span className="text-base font-normal" style={{ color: 'hsl(30 8% 42%)' }}>+</span></p>
-                        )}
-
-                        <div>
-                            <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: 'hsl(24 7% 18%)' }}>
-                                <div className="h-full rounded-full transition-all" style={{ width: `${(gmatScore / 805) * 100}%`, background: '#f59e0b' }} />
-                            </div>
-                            <p className="text-[11px] mt-1.5" style={{ color: 'hsl(30 8% 40%)' }}>Exam: {gmatExamDate}</p>
-                        </div>
-                    </StatCard>
+                    <div style={{ width: '100%', height: '2px', background: C.softBorder, marginBottom: '0.375rem' }}>
+                        <div style={{ height: '100%', background: C.fg, width: `${(gpa / gpaTarget) * 100}%`, transition: 'width 0.3s' }} />
+                    </div>
+                    <p style={{ fontSize: '0.6rem', color: C.muted }}>Target: {gpaTarget}+ (Sophia)</p>
                 </div>
+
+                {/* GMAT */}
+                <div style={{ padding: '1.25rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                        <span style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: C.muted }}>GMAT Focus</span>
+                        <ArrowUpRight style={{ width: '14px', height: '14px', color: C.red }} />
+                    </div>
+
+                    {isEditing ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                            <input type="number" value={tempGmatScore} onChange={e => setTempGmatScore(Number(e.target.value))} className="input-line" style={{ fontSize: '1.5rem', fontWeight: 800 }} />
+                            <input type="text" value={tempGmatExamDate} onChange={e => setTempGmatExamDate(e.target.value)} className="input-line" placeholder="e.g. Q3 2027" />
+                        </div>
+                    ) : (
+                        <p style={{ fontSize: '1.75rem', fontWeight: 800, marginBottom: '0.75rem' }}>
+                            {gmatScore}<span style={{ fontSize: '1rem', fontWeight: 400, color: C.muted }}>+</span>
+                        </p>
+                    )}
+
+                    <div style={{ width: '100%', height: '2px', background: C.softBorder, marginBottom: '0.375rem' }}>
+                        <div style={{ height: '100%', background: C.red, width: `${(gmatScore / 805) * 100}%`, transition: 'width 0.3s' }} />
+                    </div>
+                    <p style={{ fontSize: '0.6rem', color: C.muted }}>Exam: {gmatExamDate}</p>
+                </div>
+
             </div>
 
-            <div className="mt-8">
+            <div style={{ marginTop: '0.5rem' }}>
                 <NotificationManager />
             </div>
-        </>
+        </div>
     )
 }
