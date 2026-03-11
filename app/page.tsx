@@ -46,7 +46,7 @@ function SortableTab({ tab, isActive, onClick }: { tab: any; isActive: boolean; 
       ref={setNodeRef}
       style={{
         ...style,
-        background: isActive ? C.fg : 'transparent',
+        background: isActive ? C.red : 'transparent',
         color: isActive ? C.bg : C.muted,
         padding: '0.6rem 0.875rem',
         width: '100%',
@@ -61,13 +61,13 @@ function SortableTab({ tab, isActive, onClick }: { tab: any; isActive: boolean; 
         alignItems: 'center',
         gap: '0.625rem',
         transition: 'all 0.1s',
-        borderLeft: `3px solid ${isActive ? C.red : 'transparent'}`,
+        borderLeft: `3px solid ${isActive ? C.border : 'transparent'}`,
         touchAction: 'none',
       }}
       {...attributes}
       {...listeners}
       onClick={onClick}
-      onMouseEnter={e => { if (!isActive) { e.currentTarget.style.color = C.fg; e.currentTarget.style.background = '#e8e2d8'; } }}
+      onMouseEnter={e => { if (!isActive) { e.currentTarget.style.color = C.fg; e.currentTarget.style.background = C.softBorder; } }}
       onMouseLeave={e => { if (!isActive) { e.currentTarget.style.color = C.muted; e.currentTarget.style.background = 'transparent'; } }}
     >
       <tab.icon style={{ width: '13px', height: '13px', flexShrink: 0 }} />
