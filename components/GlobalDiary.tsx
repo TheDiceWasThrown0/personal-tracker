@@ -6,7 +6,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { BookOpen, ChevronLeft, ChevronRight, Save, Check } from "lucide-react"
 import { format, addDays, subDays, isToday } from "date-fns"
 
-const C = { bg: '#1a1410', fg: '#e8e2d8', red: '#bf1a0a', muted: '#9a9080', border: '#3b3228', cardBg: '#2a241c', softBorder: '#4a4035' }
+const C = { bg: '#FDF6E3', fg: '#5C4033', red: '#78C8A1', muted: '#A19385', border: '#5C4033', cardBg: '#FFFFFF', softBorder: '#D6CDC4' }
 
 type DiaryEntries = Record<string, string>
 

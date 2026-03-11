@@ -30,34 +30,34 @@
 }
 
 :root {
-  /* Modern-retro monochrome + deep red accent (Dark Mode) */
-  --background: #1a1410;
-  --foreground: #e8e2d8;
+  /* Animal Crossing Blocky Theme */
+  --background: #FDF6E3;
+  --foreground: #5C4033;
 
-  --card: #2a241c;
-  --card-foreground: #e8e2d8;
+  --card: #FFFFFF;
+  --card-foreground: #5C4033;
 
-  --popover: #2a241c;
-  --popover-foreground: #e8e2d8;
+  --popover: #FFFFFF;
+  --popover-foreground: #5C4033;
 
-  --primary: #bf1a0a;       /* deep red */
-  --primary-foreground: #e8e2d8;
+  --primary: #78C8A1;       /* leaf green */
+  --primary-foreground: #FFFFFF;
 
-  --secondary: #3b3228;
-  --secondary-foreground: #e8e2d8;
+  --secondary: #F4E8D1;
+  --secondary-foreground: #5C4033;
 
-  --muted: #4a4035;
-  --muted-foreground: #9a9080;
+  --muted: #F4E8D1;
+  --muted-foreground: #A19385;
 
-  --accent: #bf1a0a;
-  --accent-foreground: #e8e2d8;
+  --accent: #78C8A1;
+  --accent-foreground: #FFFFFF;
 
-  --destructive: #bf1a0a;
-  --destructive-foreground: #e8e2d8;
+  --destructive: #E07A5F;
+  --destructive-foreground: #FFFFFF;
 
-  --border: #3b3228;
-  --input: #3b3228;
-  --ring: #bf1a0a;
+  --border: #5C4033;
+  --input: #5C4033;
+  --ring: #78C8A1;
 
   --radius: 0px;
 }
@@ -90,9 +90,9 @@ body {
   gap: 0.4rem;
 }
 .btn-wire:hover {
-  background: #bf1a0a;
-  border-color: #bf1a0a;
-  color: #f5f0e8;
+  background: #78C8A1;
+  border-color: #78C8A1;
+  color: #FFFFFF;
 }
 .btn-wire:disabled {
   opacity: 0.35;
@@ -116,7 +116,7 @@ body {
   color: #9a9080;
 }
 .input-line:focus {
-  border-bottom-color: #bf1a0a;
+  border-bottom-color: #78C8A1;
 }
 
 /* Scrollbar */
@@ -126,7 +126,7 @@ body {
 ::-webkit-scrollbar-thumb:hover { background: #a09888; }
 
 /* Selection */
-::selection { background: #bf1a0a; color: #f5f0e8; }
+::selection { background: #78C8A1; color: #FFFFFF; }
 
 /* Floating buttons — above mobile nav on small screens, normal on desktop */
 .float-bottom {

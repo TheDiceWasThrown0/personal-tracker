@@ -42,7 +42,7 @@ export default function LockScreen({ onUnlock }: { onUnlock: () => void }) {
     }
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1a1410] text-stone-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#FDF6E3] text-[#5C4033]">
             <div className={cn("max-w-md w-full p-8 mx-4 space-y-8 text-center transition-all duration-300", shake ? "translate-x-[-10px]" : "")}>
 
                 <div className="flex justify-center mb-6">
