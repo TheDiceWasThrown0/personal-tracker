@@ -238,7 +238,7 @@ export default function Home() {
             )}
 
             {activeTab === "cookie" && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', paddingTop: '0.5rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', padding: '0.5rem 0 6rem' }}>
                 <CookieTracker />
               </div>
             )}
