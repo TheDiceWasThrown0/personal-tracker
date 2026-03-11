@@ -27,6 +27,19 @@
   --radius-sm: 0px;
   --radius-md: 0px;
   --radius-lg: 0px;
+
+  /* Warm brown stone scale (replaces cool gray) */
+  --color-stone-50:  #FAF5EE;
+  --color-stone-100: #F2E6D4;
+  --color-stone-200: #E0C9A8;
+  --color-stone-300: #C9A87C;
+  --color-stone-400: #A8845A;
+  --color-stone-500: #7A5C3C;
+  --color-stone-600: #5E4228;
+  --color-stone-700: #422D18;
+  --color-stone-800: #2A1C0D;
+  --color-stone-900: #170E06;
+  --color-stone-950: #0C0703;
 }
 
 :root {
