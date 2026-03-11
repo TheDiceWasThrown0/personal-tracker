@@ -23,13 +23,13 @@ import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, v
 import { CSS } from '@dnd-kit/utilities'
 
 const C = {
-  bg: '#f5f0e8',
-  fg: '#1a1612',
+  bg: '#1a1410',
+  fg: '#e8e2d8',
   red: '#bf1a0a',
-  muted: '#7a7060',
-  border: '#1a1612',
-  cardBg: '#ede8de',
-  softBorder: '#c8c0b0',
+  muted: '#9a9080',
+  border: '#3b3228',
+  cardBg: '#2a241c',
+  softBorder: '#4a4035',
 }
 
 function SortableTab({ tab, isActive, onClick }: { tab: any; isActive: boolean; onClick: () => void }) {
