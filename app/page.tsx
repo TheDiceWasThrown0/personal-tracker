@@ -254,37 +254,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Mobile bottom nav */}
-      <nav
-        className="lg:hidden"
-        style={{ position: 'fixed', bottom: 0, left: 0, right: 0, borderTop: `1.5px solid ${C.border}`, background: C.bg, display: 'flex', zIndex: 50 }}
-      >
-        {tabs.map(tab => {
-          const Icon = tab.icon
-          const active = activeTab === tab.id
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as Tab)}
-              style={{
-                flex: 1,
-                padding: '0.75rem 0',
-                background: active ? C.fg : 'transparent',
-                color: active ? C.red : C.muted,
-                border: 'none',
-                borderRight: `1px solid ${C.softBorder}`,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Icon style={{ width: '16px', height: '16px' }} />
-            </button>
-          )
-        })}
-      </nav>
-
       {/* Global Diary */}
       <GlobalDiary />
 
