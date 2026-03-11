@@ -61,18 +61,22 @@ export function DailyRoutine() {
     }, [todayKey])
 
     useEffect(() => {
-        // Simple Streak Logic: If all tasks done today, increment streak
-        // This is a simplified check. Real streak logic is complex.
-        // Let's just track if "Yesterday" was perfect.
-        // For now, simpler: Count total "Perfect Days".
-        // Ensure tasks exist to avoid empty streak increments
+        if (todayKey === "") return
         if (!(morningTasks || []).length && !(eveningTasks || []).length) return
 
         const allMorning = (morningTasks || []).every(t => (completed || {})[`${todayKey}-${t.id}`])
         const allEvening = (eveningTasks || []).every(t => (completed || {})[`${todayKey}-${t.id}`])
 
-        if (allMorning && allEvening && lastCompletionDate !== todayKey && todayKey !== "") {
-            setStreak(s => s + 1)
+        if (allMorning && allEvening && lastCompletionDate !== todayKey) {
+            const yesterday = new Date()
+            yesterday.setDate(yesterday.getDate() - 1)
+            const yesterdayKey = yesterday.toLocaleDateString('ja-JP')
+
+            if (lastCompletionDate === yesterdayKey) {
+                setStreak(s => s + 1)   // consecutive — keep going
+            } else {
+                setStreak(1)            // missed a day — reset
+            }
             setLastCompletionDate(todayKey)
         }
     }, [completed, todayKey, morningTasks, eveningTasks, lastCompletionDate, setStreak, setLastCompletionDate])

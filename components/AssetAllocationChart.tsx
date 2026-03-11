@@ -23,7 +23,7 @@ import { format } from "date-fns"
 
 export function AssetAllocationChart() {
     const [data, setData] = useSyncedState("asset_data_v4", initialData)
-    const [targetNetWorth, setTargetNetWorth] = useSyncedState<number>("target_net_worth", 0)
+    const [targetNetWorth, setTargetNetWorth] = useSyncedState<number>("target_net_worth", 250000)
     const [history, setHistory] = useSyncedState<any[]>("net_worth_history", [])
     const [isEditing, setIsEditing] = useState(false)
 

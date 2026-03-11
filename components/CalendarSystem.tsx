@@ -4,7 +4,7 @@ import { useState } from "react"
 import { useSyncedState } from "@/hooks/useSyncedState"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ChevronLeft, ChevronRight, Plus, Trash2, Check, Calendar as CalendarIcon, X } from "lucide-react"
+import { ChevronLeft, ChevronRight, Plus, Trash2, Check, Calendar as CalendarIcon, X, Pencil } from "lucide-react"
 import {
     format,
     addMonths,
@@ -33,6 +33,8 @@ export function CalendarSystem() {
     const [selectedDate, setSelectedDate] = useState<Date | null>(null)
     const [events, setEvents] = useSyncedState<CalendarEvents>("calendar_events_v1", {})
     const [newTodo, setNewTodo] = useState("")
+    const [editingId, setEditingId] = useState<string | null>(null)
+    const [editingText, setEditingText] = useState("")
 
     const start = startOfWeek(startOfMonth(currentMonth))
     const end = endOfWeek(endOfMonth(currentMonth))
@@ -72,6 +74,22 @@ export function CalendarSystem() {
         const updatedEvents = { ...events }
         updatedEvents[dateKey] = updatedEvents[dateKey].filter(t => t.id !== todoId)
         setEvents(updatedEvents)
+    }
+
+    const startEdit = (todo: TodoItem) => {
+        setEditingId(todo.id)
+        setEditingText(todo.text)
+    }
+
+    const saveEdit = () => {
+        if (!selectedDate || !editingId) return
+        const updatedEvents = { ...events }
+        updatedEvents[dateKey] = updatedEvents[dateKey].map(t =>
+            t.id === editingId ? { ...t, text: editingText.trim() || t.text } : t
+        )
+        setEvents(updatedEvents)
+        setEditingId(null)
+        setEditingText("")
     }
 
     return (
@@ -161,18 +179,39 @@ export function CalendarSystem() {
                                             <button
                                                 onClick={() => toggleTodo(todo.id)}
                                                 className={cn(
-                                                    "w-5 h-5 rounded border flex items-center justify-center transition-colors",
+                                                    "w-5 h-5 shrink-0 rounded border flex items-center justify-center transition-colors",
                                                     todo.completed ? "bg-emerald-600 border-emerald-600 text-white" : "border-stone-600 text-transparent hover:border-orange-500"
                                                 )}
                                             >
                                                 <Check className="w-3 h-3 font-bold" />
                                             </button>
-                                            <span className={cn("flex-1 text-sm font-medium", todo.completed ? "text-stone-500 line-through decoration-stone-600" : "text-stone-300")}>
-                                                {todo.text}
-                                            </span>
-                                            <button onClick={() => deleteTodo(todo.id)} className="text-stone-600 hover:text-red-400 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
-                                                <Trash2 className="w-4 h-4" />
-                                            </button>
+                                            {editingId === todo.id ? (
+                                                <input
+                                                    autoFocus
+                                                    value={editingText}
+                                                    onChange={e => setEditingText(e.target.value)}
+                                                    onBlur={saveEdit}
+                                                    onKeyDown={e => { if (e.key === 'Enter') saveEdit(); if (e.key === 'Escape') setEditingId(null) }}
+                                                    className="flex-1 bg-stone-950 border border-orange-500 rounded px-2 py-0.5 text-sm text-stone-200 outline-none"
+                                                />
+                                            ) : (
+                                                <span
+                                                    className={cn("flex-1 text-sm font-medium cursor-text", todo.completed ? "text-stone-500 line-through decoration-stone-600" : "text-stone-300")}
+                                                    onDoubleClick={() => !todo.completed && startEdit(todo)}
+                                                >
+                                                    {todo.text}
+                                                </span>
+                                            )}
+                                            {editingId !== todo.id && (
+                                                <>
+                                                    <button onClick={() => startEdit(todo)} className="text-stone-600 hover:text-orange-400 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                                                        <Pencil className="w-3.5 h-3.5" />
+                                                    </button>
+                                                    <button onClick={() => deleteTodo(todo.id)} className="text-stone-600 hover:text-red-400 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                </>
+                                            )}
                                         </div>
                                     ))
                                 )}
