@@ -33,7 +33,7 @@ export function GlobalDiary() {
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
                 <button
-                    className="btn-wire fixed bottom-40 lg:bottom-20 right-6 z-[70] w-11 h-11 p-0 flex items-center justify-center"
+                    className="btn-wire fixed bottom-56 lg:bottom-32 right-6 z-[70] w-11 h-11 p-0 flex items-center justify-center"
                     title="Captain's Log"
                 >
                     <BookOpen style={{ width: '16px', height: '16px' }} />

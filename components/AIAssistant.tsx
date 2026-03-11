@@ -67,7 +67,7 @@ export function AIAssistant() {
     };
 
     return (
-        <div className="fixed bottom-24 lg:bottom-6 right-6 z-[80] flex flex-col items-end">
+        <div className="fixed bottom-40 lg:bottom-16 right-6 z-[80] flex flex-col items-end">
 
             {/* Chat window */}
             {isOpen && (
