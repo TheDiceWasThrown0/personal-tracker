@@ -54,7 +54,7 @@ export function AIAssistant() {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (!input.trim() || isLoading) return;
-        sendMessage({ text: input });
+        sendMessage({ role: 'user', parts: [{ type: 'text', text: input }] });
         setInput('');
     };
 
