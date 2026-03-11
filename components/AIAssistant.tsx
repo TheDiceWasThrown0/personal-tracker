@@ -166,8 +166,9 @@ export function AIAssistant() {
                 style={{
                     width: '44px', height: '44px', padding: 0,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    background: isOpen ? C.fg : 'transparent',
-                    color: isOpen ? C.bg : C.fg,
+                    background: isOpen ? C.red : 'transparent',
+                    color: C.fg,
+                    borderColor: isOpen ? C.red : undefined,
                 }}
             >
                 {isOpen ? <X style={{ width: '16px', height: '16px' }} /> : <MessageSquare style={{ width: '16px', height: '16px' }} />}

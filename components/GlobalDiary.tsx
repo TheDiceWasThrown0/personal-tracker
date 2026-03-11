@@ -35,6 +35,11 @@ export function GlobalDiary() {
                 <button
                     className="btn-wire fixed bottom-56 lg:bottom-32 right-6 z-[70] w-11 h-11 p-0 flex items-center justify-center"
                     title="Captain's Log"
+                    style={{
+                        background: isOpen ? C.red : 'transparent',
+                        color: C.fg,
+                        borderColor: isOpen ? C.red : undefined,
+                    }}
                 >
                     <BookOpen style={{ width: '16px', height: '16px' }} />
                 </button>
