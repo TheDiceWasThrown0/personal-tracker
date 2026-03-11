@@ -197,6 +197,12 @@ export default function GymTracker() {
         setTempSplits(newSplits)
     }
 
+    const updateSplitName = (splitIndex: number, value: string) => {
+        const newSplits = [...tempSplits]
+        newSplits[splitIndex] = { ...newSplits[splitIndex], name: value }
+        setTempSplits(newSplits)
+    }
+
     return (
         <Card className={`border-stone-700 bg-stone-800/50 backdrop-blur-md shadow-xl relative overflow-hidden transition-all group ${!isEditing && 'hover:border-rose-500/30'}`}>
             <CardHeader className="pb-2 flex flex-col md:flex-row items-start md:items-center justify-between gap-2">
@@ -243,11 +249,19 @@ export default function GymTracker() {
                         const SplitIcon = SPLIT_ICONS[split.id] || Dumbbell
                         return (
                             <TabsContent key={split.id} value={split.id} className="space-y-4 mt-4 animate-in fade-in slide-in-from-bottom-2">
-                                <div className="flex items-center justify-between">
-                                    <h3 className={`font-black uppercase text-sm ${split.color} flex items-center gap-2`}>
-                                        <SplitIcon className="w-4 h-4" />
-                                        {split.name}
-                                    </h3>
+                                <div className="flex items-center justify-between flex-1 gap-2">
+                                    <div className={`font-black text-sm ${split.color} flex items-center gap-2 flex-1`}>
+                                        <SplitIcon className="w-4 h-4 shrink-0" />
+                                        {isEditing ? (
+                                            <input
+                                                value={split.name}
+                                                onChange={(e) => updateSplitName(splitIndex, e.target.value)}
+                                                className="w-full bg-stone-900 text-stone-200 text-sm font-bold rounded px-2 py-1 border border-stone-600 focus:border-rose-500 outline-none"
+                                            />
+                                        ) : (
+                                            <span className="uppercase">{split.name}</span>
+                                        )}
+                                    </div>
                                     {!isEditing && (
                                         <button
                                             onClick={() => logWorkout(split.name)}
