@@ -53,7 +53,7 @@
   --popover: #FFFFFF;
   --popover-foreground: #5C4033;
 
-  --primary: #78C8A1;       /* leaf green */
+  --primary: #7C4A2A;       /* leaf green */
   --primary-foreground: #FFFFFF;
 
   --secondary: #F4E8D1;
@@ -62,7 +62,7 @@
   --muted: #F4E8D1;
   --muted-foreground: #A19385;
 
-  --accent: #78C8A1;
+  --accent: #7C4A2A;
   --accent-foreground: #FFFFFF;
 
   --destructive: #E07A5F;
@@ -70,7 +70,7 @@
 
   --border: #5C4033;
   --input: #5C4033;
-  --ring: #78C8A1;
+  --ring: #7C4A2A;
 
   --radius: 0px;
 }
@@ -103,8 +103,8 @@ body {
   gap: 0.4rem;
 }
 .btn-wire:hover {
-  background: #78C8A1;
-  border-color: #78C8A1;
+  background: #7C4A2A;
+  border-color: #7C4A2A;
   color: #FFFFFF;
 }
 .btn-wire:disabled {
@@ -129,7 +129,7 @@ body {
   color: #9a9080;
 }
 .input-line:focus {
-  border-bottom-color: #78C8A1;
+  border-bottom-color: #7C4A2A;
 }
 
 /* Scrollbar */
@@ -139,7 +139,7 @@ body {
 ::-webkit-scrollbar-thumb:hover { background: #a09888; }
 
 /* Selection */
-::selection { background: #78C8A1; color: #FFFFFF; }
+::selection { background: #7C4A2A; color: #FFFFFF; }
 
 /* Floating buttons — above mobile nav on small screens, normal on desktop */
 .float-bottom {

@@ -25,7 +25,7 @@ import { CSS } from '@dnd-kit/utilities'
 const C = {
   bg: '#FDF6E3',
   fg: '#5C4033',
-  red: '#78C8A1',
+  red: '#7C4A2A',
   muted: '#A19385',
   border: '#5C4033',
   cardBg: '#FFFFFF',
