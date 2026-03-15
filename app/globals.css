@@ -43,34 +43,34 @@
 }
 
 :root {
-  /* Animal Crossing Blocky Theme */
-  --background: #FDF6E3;
-  --foreground: #5C4033;
+  /* Dark Brown Theme */
+  --background: #2C1810;
+  --foreground: #F0DEC8;
 
-  --card: #FFFFFF;
-  --card-foreground: #5C4033;
+  --card: #3A2216;
+  --card-foreground: #F0DEC8;
 
-  --popover: #FFFFFF;
-  --popover-foreground: #5C4033;
+  --popover: #3A2216;
+  --popover-foreground: #F0DEC8;
 
-  --primary: #7C4A2A;       /* leaf green */
+  --primary: #C07840;
   --primary-foreground: #FFFFFF;
 
-  --secondary: #F4E8D1;
-  --secondary-foreground: #5C4033;
+  --secondary: #3E2818;
+  --secondary-foreground: #F0DEC8;
 
-  --muted: #F4E8D1;
-  --muted-foreground: #A19385;
+  --muted: #3E2818;
+  --muted-foreground: #9A806A;
 
-  --accent: #7C4A2A;
+  --accent: #C07840;
   --accent-foreground: #FFFFFF;
 
   --destructive: #E07A5F;
   --destructive-foreground: #FFFFFF;
 
-  --border: #5C4033;
-  --input: #5C4033;
-  --ring: #7C4A2A;
+  --border: #5A3820;
+  --input: #5A3820;
+  --ring: #C07840;
 
   --radius: 0px;
 }
@@ -103,8 +103,8 @@ body {
   gap: 0.4rem;
 }
 .btn-wire:hover {
-  background: #7C4A2A;
-  border-color: #7C4A2A;
+  background: #C07840;
+  border-color: #C07840;
   color: #FFFFFF;
 }
 .btn-wire:disabled {
@@ -129,7 +129,7 @@ body {
   color: #9a9080;
 }
 .input-line:focus {
-  border-bottom-color: #7C4A2A;
+  border-bottom-color: #C07840;
 }
 
 /* Scrollbar */
@@ -139,7 +139,7 @@ body {
 ::-webkit-scrollbar-thumb:hover { background: #a09888; }
 
 /* Selection */
-::selection { background: #7C4A2A; color: #FFFFFF; }
+::selection { background: #C07840; color: #FFFFFF; }
 
 /* Floating buttons — above mobile nav on small screens, normal on desktop */
 .float-bottom {
