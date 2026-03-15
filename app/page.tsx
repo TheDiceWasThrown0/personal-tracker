@@ -16,7 +16,7 @@ import { DailySchedule } from "@/components/DailySchedule"
 import { GlobalDiary } from "@/components/GlobalDiary"
 import { AIAssistant } from "@/components/AIAssistant"
 import { SkillAcademiaTracker } from "@/components/SkillAcademiaTracker"
-import { LayoutGrid, Map, Lock, Activity, Cookie, CalendarDays, ListTodo, BookOpen } from "lucide-react"
+import { LayoutGrid, Map, Lock, Activity, Cookie, CalendarDays, ListTodo, BookOpen, Menu, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core'
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
@@ -83,6 +83,7 @@ export default function Home() {
   const [isUnlocked, setIsUnlocked] = useLocalStorage<boolean>("shijun-access-granted", false)
   const [isMounted, setIsMounted] = useState(false)
   const [tabsOrder, setTabsOrder] = useSyncedState<string[]>("tabs_order_v2", ["dashboard", "routine", "planner", "roadmap", "fitness", "cookie", "skills"])
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
 
   useEffect(() => { setIsMounted(true) }, [])
 
@@ -179,16 +180,26 @@ export default function Home() {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', paddingBottom: 0 }}>
 
         {/* Top bar */}
-        <div style={{ height: '48px', borderBottom: `1.5px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 2rem', flexShrink: 0, background: C.bg }}>
+        <div style={{ height: '48px', borderBottom: `1.5px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 1.25rem 0 2rem', flexShrink: 0, background: C.bg }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
             <ActiveIcon style={{ width: '13px', height: '13px', color: C.red }} />
             <span style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
               {tabsPool[activeTab]?.label}
             </span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <div style={{ width: '6px', height: '6px', background: '#16a34a', flexShrink: 0 }} />
-            <span style={{ fontSize: '0.6rem', color: C.muted, letterSpacing: '0.1em', textTransform: 'uppercase' }}>online</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <div style={{ width: '6px', height: '6px', background: '#16a34a', flexShrink: 0 }} />
+              <span style={{ fontSize: '0.6rem', color: C.muted, letterSpacing: '0.1em', textTransform: 'uppercase' }}>online</span>
+            </div>
+            {/* Hamburger — mobile only */}
+            <button
+              className="lg:hidden"
+              onClick={() => setMobileNavOpen(true)}
+              style={{ background: 'transparent', border: 'none', color: C.fg, cursor: 'pointer', padding: '0.25rem', display: 'flex', alignItems: 'center' }}
+            >
+              <Menu style={{ width: '18px', height: '18px' }} />
+            </button>
           </div>
         </div>
 
@@ -254,36 +265,57 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Mobile bottom nav */}
-      <nav
-        className="lg:hidden"
-        style={{ position: 'fixed', bottom: 0, left: 0, right: 0, borderTop: `1.5px solid ${C.border}`, background: C.bg, display: 'flex', zIndex: 50 }}
-      >
-        {tabs.map(tab => {
-          const Icon = tab.icon
-          const active = activeTab === tab.id
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as Tab)}
-              style={{
-                flex: 1,
-                padding: '0.75rem 0',
-                background: active ? C.fg : 'transparent',
-                color: active ? C.bg : C.muted,
-                border: 'none',
-                borderRight: `1px solid ${C.softBorder}`,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Icon style={{ width: '16px', height: '16px' }} />
-            </button>
-          )
-        })}
-      </nav>
+      {/* Mobile nav drawer */}
+      {mobileNavOpen && (
+        <div className="lg:hidden" style={{ position: 'fixed', inset: 0, zIndex: 60 }}>
+          {/* Backdrop */}
+          <div onClick={() => setMobileNavOpen(false)} style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)' }} />
+          {/* Drawer */}
+          <aside style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: '220px', background: C.bg, borderRight: `1.5px solid ${C.border}`, display: 'flex', flexDirection: 'column' }}>
+            <div style={{ padding: '1.25rem 1rem', borderBottom: `1.5px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ fontSize: '0.7rem', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Navigation</span>
+              <button onClick={() => setMobileNavOpen(false)} style={{ background: 'transparent', border: 'none', color: C.muted, cursor: 'pointer', padding: '0.25rem', display: 'flex' }}>
+                <X style={{ width: '16px', height: '16px' }} />
+              </button>
+            </div>
+            <nav style={{ flex: 1, overflowY: 'auto', paddingTop: '0.5rem' }}>
+              {tabs.map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => { setActiveTab(tab.id as Tab); setMobileNavOpen(false) }}
+                  style={{
+                    background: activeTab === tab.id ? C.red : 'transparent',
+                    color: activeTab === tab.id ? C.bg : C.muted,
+                    padding: '0.6rem 0.875rem',
+                    width: '100%',
+                    textAlign: 'left',
+                    fontFamily: 'inherit',
+                    fontSize: '0.7rem',
+                    fontWeight: activeTab === tab.id ? 700 : 500,
+                    letterSpacing: '0.06em',
+                    textTransform: 'uppercase',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.625rem',
+                    border: 'none',
+                    borderLeft: `3px solid ${activeTab === tab.id ? C.border : 'transparent'}`,
+                  }}
+                >
+                  <tab.icon style={{ width: '13px', height: '13px', flexShrink: 0 }} />
+                  {tab.label}
+                </button>
+              ))}
+            </nav>
+            <div style={{ padding: '0.875rem 1rem', borderTop: `1.5px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ fontSize: '0.6rem', color: C.muted, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Tokyo, JP</span>
+              <button onClick={() => setIsUnlocked(false)} className="btn-wire" style={{ padding: '0.25rem 0.5rem', fontSize: '0.6rem' }} title="Lock">
+                <Lock style={{ width: '11px', height: '11px' }} />
+              </button>
+            </div>
+          </aside>
+        </div>
+      )}
 
       {/* Global Diary */}
       <GlobalDiary />
