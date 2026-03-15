@@ -217,7 +217,7 @@ export default function Home() {
             {activeTab === "routine" && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                 <SectionHeader label="Daily Protocol" />
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   <DailySchedule />
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                     <SectionHeader label="Daily Habits" small />
