@@ -35,55 +35,50 @@ const SPLIT_ICONS: Record<string, any> = {
 const DEFAULT_SPLITS: WorkoutSplit[] = [
     {
         id: "monday",
-        name: "Monday (Pull - 厚みと広がりの日)",
-        color: "text-blue-500",
+        name: "Monday (Lower & Core - 土台と推進力の階)",
+        color: "text-green-500",
         exercises: [
-            { id: "lat_mid", name: "Lat pulldown (back middle)", sets: 3, reps: "10", weight: "59kg" },
-            { id: "lat_wide", name: "Lat pulldown (back wide)", sets: 3, reps: "8", weight: "52kg" },
-            { id: "seated_row", name: "Seated Row (Thickness)", sets: 3, reps: "10", weight: "20~24kg" },
-            { id: "rear_delt", name: "Rear delt", sets: 3, reps: "12", weight: "47.5kg" },
-            { id: "db_curl", name: "Seated dumbbell curl", sets: 3, reps: "10", weight: "12kg" },
-            { id: "hammer_curl", name: "Hammer Curl", sets: 3, reps: "10", weight: "14kg" },
+            { id: "squat", name: "Barbell Squat / Hack Squat", sets: 3, reps: "8", weight: "" },
+            { id: "rdl", name: "Romanian Deadlift (RDL)", sets: 3, reps: "10", weight: "" },
+            { id: "leg_ext", name: "Leg Extension", sets: 3, reps: "12", weight: "" },
+            { id: "leg_curl", name: "Seated Leg Curl", sets: 3, reps: "12", weight: "" },
             { id: "crunch", name: "Abdominal Crunch (Matrix)", sets: 3, reps: "12", weight: "90kg" },
             { id: "cardio", name: "Incline Walk", sets: 1, reps: "20min", weight: "18% 3.5km/h" },
         ]
     },
     {
         id: "tuesday",
-        name: "Tuesday (Push - 鎧とメロン肩の日)",
+        name: "Tuesday (Push - 装甲とメロン肩の階)",
         color: "text-orange-500",
         exercises: [
             { id: "bench", name: "Bench Press", sets: 3, reps: "8", weight: "70kg" },
             { id: "incline_db", name: "Incline Db Press", sets: 3, reps: "10", weight: "24~26kg" },
-            { id: "ohp", name: "Overhead Press", sets: 3, reps: "10", weight: "16kg" },
-            { id: "pec_fly", name: "Pec fly", sets: 3, reps: "8", weight: "80kg" },
-            { id: "lat_raise", name: "Lateral Raise (Drop)", sets: 3, reps: "Failure", weight: "7,4,0kg" },
-            { id: "rope_push", name: "Rope Pushdown", sets: 3, reps: "10", weight: "24.9kg" },
-            { id: "crunch", name: "Abdominal Crunch (Matrix)", sets: 3, reps: "12", weight: "90kg" },
+            { id: "pec_fly", name: "Pec fly", sets: 3, reps: "10", weight: "80kg" },
+            { id: "lat_raise", name: "Lateral Raise (Drop Set)", sets: 3, reps: "Failure", weight: "7kg, 4kg, 0kg" },
+            { id: "rope_push", name: "Rope Pushdown", sets: 3, reps: "12", weight: "24.9kg" },
             { id: "cardio", name: "Incline Walk", sets: 1, reps: "20min", weight: "18% 3.5km/h" },
         ]
     },
     {
         id: "wednesday",
-        name: "Wednesday (Rest - 回復の階)",
+        name: "Wednesday (Rest - 冷却の階)",
         color: "text-stone-500",
         exercises: [
-            { id: "rest", name: "Rest & Recover", sets: 1, reps: "All Day", weight: "0kg" },
+            { id: "rest", name: "Rest & Recover", sets: 1, reps: "All Day", weight: "" },
         ]
     },
     {
         id: "thursday",
-        name: "Thursday (Pull - 厚みと広がりの日)",
+        name: "Thursday (Pull - 厚みと広がりの階)",
         color: "text-blue-500",
         exercises: [
-            { id: "lat_mid", name: "Lat pulldown (back middle)", sets: 3, reps: "10", weight: "59kg" },
-            { id: "lat_wide", name: "Lat pulldown (back wide)", sets: 3, reps: "8", weight: "52kg" },
-            { id: "seated_row", name: "Seated Row (Thickness)", sets: 3, reps: "10", weight: "20~24kg" },
-            { id: "rear_delt", name: "Rear delt", sets: 3, reps: "12", weight: "47.5kg" },
+            { id: "lat_wide", name: "Lat pulldown (back wide)", sets: 3, reps: "10", weight: "59kg" },
+            { id: "seated_row", name: "Seated Row (Thickness)", sets: 3, reps: "10", weight: "24kg" },
+            { id: "db_row", name: "Dumbbell Row / T-Bar Row", sets: 3, reps: "10", weight: "" },
+            { id: "rear_delt", name: "Rear delt", sets: 3, reps: "15", weight: "47.5kg" },
             { id: "db_curl", name: "Seated dumbbell curl", sets: 3, reps: "10", weight: "12kg" },
             { id: "hammer_curl", name: "Hammer Curl", sets: 3, reps: "10", weight: "14kg" },
             { id: "crunch", name: "Abdominal Crunch (Matrix)", sets: 3, reps: "12", weight: "90kg" },
-            { id: "cardio", name: "Incline Walk", sets: 1, reps: "20min", weight: "18% 3.5km/h" },
         ]
     },
     {
@@ -91,37 +86,33 @@ const DEFAULT_SPLITS: WorkoutSplit[] = [
         name: "Friday (Rest - 準備の階)",
         color: "text-stone-500",
         exercises: [
-            { id: "rest_prep", name: "Rest & Carb Up", sets: 1, reps: "All Day", weight: "0kg" },
+            { id: "rest_prep", name: "Rest & Carb Up / Meal Prep", sets: 1, reps: "All Day", weight: "" },
         ]
     },
     {
         id: "saturday",
-        name: "Saturday (Push - 鎧とメロン肩の日)",
-        color: "text-orange-500",
+        name: "Saturday (Athlete & Weak Point - 兵器化と弱点補強の階)",
+        color: "text-purple-500",
         exercises: [
-            { id: "bench", name: "Bench Press", sets: 3, reps: "8", weight: "70kg" },
-            { id: "incline_db", name: "Incline Db Press", sets: 3, reps: "10", weight: "24~26kg" },
             { id: "ohp", name: "Overhead Press", sets: 3, reps: "10", weight: "16kg" },
-            { id: "pec_fly", name: "Pec fly", sets: 3, reps: "8", weight: "80kg" },
-            { id: "lat_raise", name: "Lateral Raise (Drop)", sets: 3, reps: "Failure", weight: "7,4,0kg" },
-            { id: "rope_push", name: "Rope Pushdown", sets: 3, reps: "10", weight: "24.9kg" },
-            { id: "crunch", name: "Abdominal Crunch (Matrix)", sets: 3, reps: "12", weight: "90kg" },
-            { id: "cardio", name: "Incline Walk", sets: 1, reps: "20min", weight: "18% 3.5km/h" },
+            { id: "lat_raise_normal", name: "Lateral Raise (Normal)", sets: 3, reps: "12", weight: "7kg" },
+            { id: "arm_superset", name: "Arm Super-set (Biceps/Triceps)", sets: 3, reps: "12", weight: "" },
+            { id: "hiit", name: "MATRIX Cycle (HIIT)", sets: 9, reps: "20s on / 40s off", weight: "8~10 sets" },
         ]
     },
     {
         id: "sunday",
-        name: "Sunday (Rest & Prep - 抽出と整理の日)",
+        name: "Sunday (Rest & Prep - 抽出と整理の階)",
         color: "text-stone-500",
         exercises: [
-            { id: "rest_prep_meal", name: "Rest & Meal Prep", sets: 1, reps: "All Day", weight: "0kg" },
+            { id: "rest_prep_meal", name: "Rest & Meal Prep", sets: 1, reps: "All Day", weight: "" },
         ]
     }
 ]
 
 export default function GymTracker() {
     // Persistence - Synced
-    const [splits, setSplits] = useSyncedState<WorkoutSplit[]>("workout_splits", DEFAULT_SPLITS)
+    const [splits, setSplits] = useSyncedState<WorkoutSplit[]>("workout_splits_v2", DEFAULT_SPLITS)
     const [lastWorkout, setLastWorkout] = useSyncedState<string>("last_workout_date", "")
     const [streak, setStreak] = useSyncedState<number>("workout_streak", 0)
 
