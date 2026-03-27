@@ -38,12 +38,12 @@ const DEFAULT_SPLITS: WorkoutSplit[] = [
         name: "Monday (Lower & Core - 土台と推進力の階)",
         color: "text-green-500",
         exercises: [
+            { id: "incline_walk_am", name: "〔AM〕Incline Walk", sets: 1, reps: "20min", weight: "18% 3.5km/h" },
             { id: "squat", name: "Barbell Squat / Hack Squat", sets: 3, reps: "8", weight: "" },
-            { id: "rdl", name: "Romanian Deadlift (RDL)", sets: 3, reps: "10", weight: "" },
-            { id: "leg_ext", name: "Leg Extension", sets: 3, reps: "12", weight: "" },
-            { id: "leg_curl", name: "Seated Leg Curl", sets: 3, reps: "12", weight: "" },
+            { id: "back_ext", name: "45° Back Extension / Bulgarian Squat", sets: 3, reps: "10-12", weight: "" },
+            { id: "leg_ext", name: "Leg Extension", sets: 3, reps: "12", weight: "63kg" },
+            { id: "leg_curl", name: "Seated Leg Curl", sets: 3, reps: "12", weight: "36kg" },
             { id: "crunch", name: "Abdominal Crunch (Matrix)", sets: 3, reps: "12", weight: "90kg" },
-            { id: "cardio", name: "Incline Walk", sets: 1, reps: "20min", weight: "18% 3.5km/h" },
         ]
     },
     {
@@ -51,12 +51,12 @@ const DEFAULT_SPLITS: WorkoutSplit[] = [
         name: "Tuesday (Push - 装甲とメロン肩の階)",
         color: "text-orange-500",
         exercises: [
+            { id: "incline_walk_am", name: "〔AM〕Incline Walk", sets: 1, reps: "20min", weight: "18% 3.5km/h" },
             { id: "bench", name: "Bench Press", sets: 3, reps: "8", weight: "70kg" },
-            { id: "incline_db", name: "Incline Db Press", sets: 3, reps: "10", weight: "24~26kg" },
-            { id: "pec_fly", name: "Pec fly", sets: 3, reps: "10", weight: "80kg" },
+            { id: "incline_db", name: "Incline DB Press", sets: 3, reps: "10", weight: "24~26kg" },
+            { id: "pec_fly", name: "Pec Fly", sets: 3, reps: "10", weight: "80kg" },
             { id: "lat_raise", name: "Lateral Raise (Drop Set)", sets: 3, reps: "Failure", weight: "7kg, 4kg, 0kg" },
             { id: "rope_push", name: "Rope Pushdown", sets: 3, reps: "12", weight: "24.9kg" },
-            { id: "cardio", name: "Incline Walk", sets: 1, reps: "20min", weight: "18% 3.5km/h" },
         ]
     },
     {
@@ -72,37 +72,33 @@ const DEFAULT_SPLITS: WorkoutSplit[] = [
         name: "Thursday (Pull - 厚みと広がりの階)",
         color: "text-blue-500",
         exercises: [
-            { id: "lat_wide", name: "Lat pulldown (back wide)", sets: 3, reps: "10", weight: "59kg" },
+            { id: "incline_walk_am", name: "〔AM〕Incline Walk", sets: 1, reps: "20min", weight: "18% 3.5km/h" },
+            { id: "lat_wide", name: "Lat Pulldown (back wide)", sets: 3, reps: "10", weight: "59kg" },
             { id: "seated_row", name: "Seated Row (Thickness)", sets: 3, reps: "10", weight: "24kg" },
-            { id: "db_row", name: "Dumbbell Row / T-Bar Row", sets: 3, reps: "10", weight: "" },
-            { id: "rear_delt", name: "Rear delt", sets: 3, reps: "15", weight: "47.5kg" },
-            { id: "db_curl", name: "Seated dumbbell curl", sets: 3, reps: "10", weight: "12kg" },
-            { id: "hammer_curl", name: "Hammer Curl", sets: 3, reps: "10", weight: "14kg" },
-            { id: "crunch", name: "Abdominal Crunch (Matrix)", sets: 3, reps: "12", weight: "90kg" },
+            { id: "machine_row", name: "Machine Row / T-Bar Row", sets: 3, reps: "10", weight: "" },
+            { id: "rear_delt", name: "Rear Delt", sets: 3, reps: "15", weight: "47.5kg" },
+            { id: "db_curl", name: "Seated Dumbbell Curl", sets: 3, reps: "10-12", weight: "12kg" },
         ]
     },
     {
         id: "friday",
-        name: "Friday (Rest - 準備の階)",
-        color: "text-stone-500",
+        name: "Friday (Weak Point - 補完の階)",
+        color: "text-yellow-500",
         exercises: [
-            { id: "rest_prep", name: "Rest & Carb Up / Meal Prep", sets: 1, reps: "All Day", weight: "" },
+            { id: "weak_point", name: "Weak Point Training / Rest (Flexible)", sets: 1, reps: "—", weight: "" },
         ]
     },
     {
         id: "saturday",
-        name: "Saturday (Athlete & Weak Point - 兵器化と弱点補強の階)",
+        name: "Saturday (Athlete Conditioning - 爆発の階)",
         color: "text-purple-500",
         exercises: [
-            { id: "ohp", name: "Overhead Press", sets: 3, reps: "10", weight: "16kg" },
-            { id: "lat_raise_normal", name: "Lateral Raise (Normal)", sets: 3, reps: "12", weight: "7kg" },
-            { id: "arm_superset", name: "Arm Super-set (Biceps/Triceps)", sets: 3, reps: "12", weight: "" },
             { id: "hiit", name: "MATRIX Cycle (HIIT)", sets: 9, reps: "20s on / 40s off", weight: "8~10 sets" },
         ]
     },
     {
         id: "sunday",
-        name: "Sunday (Rest & Prep - 抽出と整理の階)",
+        name: "Sunday (System Prep - 抽出と整理の階)",
         color: "text-stone-500",
         exercises: [
             { id: "rest_prep_meal", name: "Rest & Meal Prep", sets: 1, reps: "All Day", weight: "" },
@@ -180,7 +176,7 @@ export default function GymTracker() {
                     <thead><tr><th>Exercise</th><th>Sets</th><th>Reps</th><th>Weight</th></tr></thead>
                     <tbody>
                         ${split.exercises.map(ex => `
-                            <tr>
+                            <tr${ex.id === 'incline_walk_am' ? ' class="am"' : ''}>
                                 <td>${ex.name}</td>
                                 <td>${ex.sets}</td>
                                 <td>${ex.reps}</td>
@@ -189,9 +185,12 @@ export default function GymTracker() {
                     </tbody>
                 </table>
             </div>`).join('')
-        win.document.write(`<!DOCTYPE html><html><head><title>Bio-Infrastructure — Workout Split</title><style>
+        win.document.write(`<!DOCTYPE html><html><head><title>Bio-Infrastructure v2.0 — Workout Split</title><style>
             body { font-family: 'Helvetica Neue', sans-serif; color: #1a1a1a; padding: 32px; max-width: 800px; margin: 0 auto; }
-            h1 { font-size: 22px; font-weight: 900; letter-spacing: 0.1em; text-transform: uppercase; border-bottom: 3px solid #e11d48; padding-bottom: 8px; margin-bottom: 24px; }
+            h1 { font-size: 22px; font-weight: 900; letter-spacing: 0.1em; text-transform: uppercase; border-bottom: 3px solid #e11d48; padding-bottom: 8px; margin-bottom: 8px; }
+            .version { font-size: 11px; color: #888; margin-bottom: 20px; }
+            .os-rules { background: #fafafa; border-left: 3px solid #e11d48; padding: 10px 14px; margin-bottom: 28px; font-size: 11px; line-height: 1.7; }
+            .os-rules strong { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: #e11d48; margin-bottom: 4px; }
             .day { margin-bottom: 28px; break-inside: avoid; }
             h2 { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #e11d48; margin-bottom: 8px; }
             table { width: 100%; border-collapse: collapse; font-size: 12px; }
@@ -199,10 +198,20 @@ export default function GymTracker() {
             td { padding: 6px 6px; border-bottom: 1px solid #f0f0f0; }
             td:first-child { font-weight: 600; }
             td:not(:first-child) { text-align: center; color: #555; }
+            tr.am td { color: #0284c7; }
+            tr.am td:first-child { font-style: italic; }
             .footer { margin-top: 32px; font-size: 10px; color: #aaa; text-align: right; }
             @media print { body { padding: 16px; } }
         </style></head><body>
-            <h1>Bio-Infrastructure — Workout Split</h1>
+            <h1>🧬 Bio-Infrastructure — Workout Split</h1>
+            <div class="version">v2.0 &nbsp;|&nbsp; Lower / Push / Pull / Athlete</div>
+            <div class="os-rules">
+                <strong>全体OS — Morning Phase</strong>
+                起床後、水・少量の塩・プロテイン半スクープ（またはEAA 10g）のみ摂取し、即座にIncline Walkを実行。カタボリックを防ぎつつ純粋な脂肪だけを燃やす。
+                <br/><br/>
+                <strong>全体OS — Night Phase</strong>
+                朝のCardioから最低6時間以上空け、十分な糖質とタンパク質を補給した状態でウェイトに挑む。終了後のCardioは一切行わず、速やかに帰宅して栄養を摂取し、システムをシャットダウン（睡眠）させる。
+            </div>
             ${rows}
             <div class="footer">Printed ${new Date().toLocaleDateString()}</div>
         </body></html>`)
