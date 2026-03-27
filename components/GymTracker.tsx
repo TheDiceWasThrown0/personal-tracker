@@ -3,7 +3,7 @@
 import { useSyncedState } from "@/hooks/useSyncedState"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Dumbbell, Activity, Flame, Timer, Plus, Trash2, Save, RotateCcw, Edit2 } from "lucide-react"
+import { Dumbbell, Activity, Flame, Timer, Plus, Trash2, Save, RotateCcw, Edit2, Printer } from "lucide-react"
 import { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
 
@@ -170,6 +170,47 @@ export default function GymTracker() {
         }
     }
 
+    const printWorkout = () => {
+        const win = window.open('', '_blank')
+        if (!win) return
+        const rows = splits.map(split => `
+            <div class="day">
+                <h2>${split.name}</h2>
+                <table>
+                    <thead><tr><th>Exercise</th><th>Sets</th><th>Reps</th><th>Weight</th></tr></thead>
+                    <tbody>
+                        ${split.exercises.map(ex => `
+                            <tr>
+                                <td>${ex.name}</td>
+                                <td>${ex.sets}</td>
+                                <td>${ex.reps}</td>
+                                <td>${ex.weight || '—'}</td>
+                            </tr>`).join('')}
+                    </tbody>
+                </table>
+            </div>`).join('')
+        win.document.write(`<!DOCTYPE html><html><head><title>Bio-Infrastructure — Workout Split</title><style>
+            body { font-family: 'Helvetica Neue', sans-serif; color: #1a1a1a; padding: 32px; max-width: 800px; margin: 0 auto; }
+            h1 { font-size: 22px; font-weight: 900; letter-spacing: 0.1em; text-transform: uppercase; border-bottom: 3px solid #e11d48; padding-bottom: 8px; margin-bottom: 24px; }
+            .day { margin-bottom: 28px; break-inside: avoid; }
+            h2 { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #e11d48; margin-bottom: 8px; }
+            table { width: 100%; border-collapse: collapse; font-size: 12px; }
+            th { text-align: left; text-transform: uppercase; font-size: 10px; color: #888; border-bottom: 1px solid #ddd; padding: 4px 6px; }
+            td { padding: 6px 6px; border-bottom: 1px solid #f0f0f0; }
+            td:first-child { font-weight: 600; }
+            td:not(:first-child) { text-align: center; color: #555; }
+            .footer { margin-top: 32px; font-size: 10px; color: #aaa; text-align: right; }
+            @media print { body { padding: 16px; } }
+        </style></head><body>
+            <h1>Bio-Infrastructure — Workout Split</h1>
+            ${rows}
+            <div class="footer">Printed ${new Date().toLocaleDateString()}</div>
+        </body></html>`)
+        win.document.close()
+        win.focus()
+        win.print()
+    }
+
     const addExercise = (splitIndex: number) => {
         const newSplits = [...tempSplits]
         newSplits[splitIndex].exercises.push({
@@ -215,6 +256,9 @@ export default function GymTracker() {
                         <div className="flex gap-1">
                             <button onClick={resetToDefault} className="text-[10px] uppercase font-bold text-stone-500 hover:text-stone-300 mr-2 flex items-center gap-1">
                                 <RotateCcw className="w-3 h-3" /> Reset
+                            </button>
+                            <button onClick={printWorkout} title="Print as PDF" className="bg-stone-800 text-stone-400 p-2 rounded-full border border-stone-700 shadow-sm opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all hover:text-rose-500 hover:border-rose-500/50">
+                                <Printer className="w-4 h-4" />
                             </button>
                             <button onClick={startEditing} className="bg-stone-800 text-stone-400 p-2 rounded-full border border-stone-700 shadow-sm opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all hover:text-rose-500 hover:border-rose-500/50">
                                 <Edit2 className="w-4 h-4" />
