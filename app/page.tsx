@@ -222,7 +222,7 @@ export default function Home() {
             <div style={{ background: '#dc2626', color: '#fff', padding: '0.4rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', flexShrink: 0, position: 'sticky', top: 0, zIndex: 30 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <AlertTriangle style={{ width: '11px', height: '11px' }} />
-                <span>Excellence Below Threshold — 7-Day Avg: {sevenDayAvg.toFixed(1)}/10 (Target: ≥9.5)</span>
+                <span>Excellence Below Threshold — Last 7 Sessions Avg: {sevenDayAvg.toFixed(1)}/10 (Target: ≥9.5)</span>
               </div>
               <span>Raise Your Standards</span>
             </div>

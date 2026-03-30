@@ -24,11 +24,10 @@ const C = {
   danger: '#dc2626',
 }
 
+// Uses last 7 logged sessions (not 7 days) so recovery comes from action, not waiting
 export function getSevenDayAverage(sessions: QualitySession[]): number {
-  const cutoff = new Date()
-  cutoff.setDate(cutoff.getDate() - 7)
-  const recent = sessions.filter(s => new Date(s.date) >= cutoff)
-  if (recent.length === 0) return -1
+  if (sessions.length === 0) return -1
+  const recent = sessions.slice(0, 7)
   return recent.reduce((sum, s) => sum + s.score, 0) / recent.length
 }
 
@@ -100,7 +99,7 @@ export function QualityTracker() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.875rem', marginBottom: '1.25rem' }}>
         <div style={{ background: C.cardBg, border: `1.5px solid ${isWarning ? C.danger : C.border}`, padding: '1rem 1.25rem' }}>
           <p style={{ fontSize: '0.55rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase' as const, color: C.muted, marginBottom: '0.375rem' }}>
-            7-Day Excellence Avg
+            Last 7 Sessions Avg
           </p>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.375rem' }}>
             <span style={{ fontSize: '2.25rem', fontWeight: 800, color: avg < 0 ? C.muted : scoreColor(avg), fontFamily: 'monospace', lineHeight: 1 }}>
