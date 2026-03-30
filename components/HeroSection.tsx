@@ -5,7 +5,7 @@ import { intervalToDuration, type Duration } from "date-fns"
 import { useSyncedState } from "@/hooks/useSyncedState"
 import { Edit2, Check, X } from "lucide-react"
 
-const C = { bg: '#FDF6E3', fg: '#5C4033', red: '#78C8A1', muted: '#A19385', border: '#5C4033', cardBg: '#FFFFFF', softBorder: '#D6CDC4' }
+const C = { bg: '#2C1810', fg: '#F0DEC8', red: '#C07840', muted: '#9A806A', border: '#5A3820', cardBg: '#3A2216', softBorder: '#6A4830' }
 const UNITS = ["years", "months", "days", "hours", "minutes", "seconds"] as const
 
 export function HeroSection() {
