@@ -2,7 +2,7 @@
 
 import { useSyncedState } from "@/hooks/useSyncedState"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Cookie as CookieIcon, User, Trophy, Save } from "lucide-react"
+import { Cookie as CookieIcon, User, Trophy, Save, Trash2 } from "lucide-react"
 import { useState, useRef, useEffect } from "react"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
@@ -128,9 +128,18 @@ export function CookieTracker() {
     return (
         <Card className="border-4 border-amber-500/20 bg-stone-900/50 backdrop-blur-md shadow-xl overflow-hidden max-w-md mx-auto">
             <CardHeader className="bg-amber-900/20 pb-4 border-b border-amber-500/10">
-                <CardTitle className="text-amber-400 font-black uppercase tracking-widest text-center flex items-center justify-center gap-2">
-                    <CookieIcon className="w-6 h-6" /> Cookie Jar
-                </CardTitle>
+                <div className="flex items-center justify-between">
+                    <CardTitle className="text-amber-400 font-black uppercase tracking-widest flex items-center gap-2">
+                        <CookieIcon className="w-6 h-6" /> Cookie Jar
+                    </CardTitle>
+                    <button
+                        onClick={() => { if (confirm("Reset all cookie stats? This cannot be undone.")) setStats(DEFAULT_STATS) }}
+                        className="text-stone-600 hover:text-red-400 transition-colors p-1"
+                        title="Reset cookie stats"
+                    >
+                        <Trash2 className="w-4 h-4" />
+                    </button>
+                </div>
             </CardHeader>
             <CardContent className="pt-8 pb-12 flex flex-col items-center gap-8">
 

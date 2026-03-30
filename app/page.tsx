@@ -16,7 +16,11 @@ import { DailySchedule } from "@/components/DailySchedule"
 import { GlobalDiary } from "@/components/GlobalDiary"
 import { AIAssistant } from "@/components/AIAssistant"
 import { SkillAcademiaTracker } from "@/components/SkillAcademiaTracker"
-import { LayoutGrid, Map, Lock, Activity, Cookie, CalendarDays, ListTodo, BookOpen, Menu, X } from "lucide-react"
+import { PainButton, type PainEntry } from "@/components/PainButton"
+import { QualityTracker, getSevenDayAverage, type QualitySession } from "@/components/QualityTracker"
+import { PuzzleMap } from "@/components/PuzzleMap"
+import { SystemFailureAlert } from "@/components/SystemFailureAlert"
+import { LayoutGrid, Map, Lock, Activity, Cookie, CalendarDays, ListTodo, BookOpen, Menu, X, Brain, Target, Lightbulb, AlertTriangle, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core'
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
@@ -76,13 +80,16 @@ function SortableTab({ tab, isActive, onClick }: { tab: any; isActive: boolean; 
   )
 }
 
-type Tab = "dashboard" | "routine" | "planner" | "roadmap" | "fitness" | "cookie" | "skills"
+type Tab = "dashboard" | "routine" | "planner" | "roadmap" | "fitness" | "cookie" | "skills" | "vision" | "mindset"
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<Tab>("dashboard")
   const [isUnlocked, setIsUnlocked] = useLocalStorage<boolean>("shijun-access-granted", false)
   const [isMounted, setIsMounted] = useState(false)
-  const [tabsOrder, setTabsOrder] = useSyncedState<string[]>("tabs_order_v2", ["dashboard", "routine", "planner", "roadmap", "fitness", "cookie", "skills"])
+  const [tabsOrder, setTabsOrder] = useSyncedState<string[]>("tabs_order_v3", ["dashboard", "routine", "planner", "roadmap", "fitness", "cookie", "skills", "vision", "mindset"])
+  const [qualityData] = useSyncedState<{ sessions: QualitySession[] }>("quality_scores_v1", { sessions: [] })
+  const [painData] = useSyncedState<{ entries: PainEntry[] }>("pain_entries_v1", { entries: [] })
+  const [principleIndex, setPrincipleIndex] = useState(0)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
 
   useEffect(() => { setIsMounted(true) }, [])
@@ -92,6 +99,13 @@ export default function Home() {
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   )
 
+  const qualitySessions = qualityData?.sessions ?? []
+  const sevenDayAvg = getSevenDayAverage(qualitySessions)
+  const isQualityWarning = qualitySessions.length > 0 && sevenDayAvg >= 0 && sevenDayAvg < 9.5
+
+  const principles = (painData?.entries ?? []).filter(e => e.principle).map(e => e.principle!)
+  const currentPrinciple = principles.length > 0 ? principles[principleIndex % principles.length] : null
+
   const tabsPool: Record<string, { id: string; label: string; icon: any }> = {
     dashboard: { id: "dashboard", label: "Overview",          icon: LayoutGrid  },
     routine:   { id: "routine",   label: "Daily Routine",     icon: ListTodo    },
@@ -100,6 +114,8 @@ export default function Home() {
     fitness:   { id: "fitness",   label: "Fitness",           icon: Activity    },
     cookie:    { id: "cookie",    label: "Cookies",           icon: Cookie      },
     skills:    { id: "skills",    label: "Skills",            icon: BookOpen    },
+    vision:    { id: "vision",    label: "Vision Map",        icon: Target      },
+    mindset:   { id: "mindset",   label: "Mindset",           icon: Brain       },
   }
 
   const tabs = tabsOrder.map(id => tabsPool[id]).filter(Boolean)
@@ -121,7 +137,7 @@ export default function Home() {
   const ActiveIcon = tabsPool[activeTab]?.icon ?? LayoutGrid
 
   return (
-    <main style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: C.bg, color: C.fg, fontFamily: 'inherit' }}>
+    <main style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: C.bg, color: C.fg, fontFamily: 'inherit', boxShadow: isQualityWarning ? 'inset 0 0 0 3px #dc2626' : 'none' }}>
 
       {/* ── Sidebar ── */}
       <aside
@@ -205,12 +221,44 @@ export default function Home() {
 
         {/* Scroll area */}
         <div style={{ flex: 1, overflowY: 'auto' }}>
+          {/* Quality Warning Banner */}
+          {isQualityWarning && (
+            <div style={{ background: '#dc2626', color: '#fff', padding: '0.4rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', flexShrink: 0, position: 'sticky', top: 0, zIndex: 30 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <AlertTriangle style={{ width: '11px', height: '11px' }} />
+                <span>Excellence Below Threshold — 7-Day Avg: {sevenDayAvg.toFixed(1)}/10 (Target: ≥9.5)</span>
+              </div>
+              <span>Raise Your Standards</span>
+            </div>
+          )}
           <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '2.5rem 2rem' }}>
 
             {activeTab === "dashboard" && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem' }}>
                 <HeroSection />
                 <StatusDashboard />
+                {currentPrinciple && (
+                  <div style={{ borderTop: `1.5px solid ${C.border}`, paddingTop: '1.5rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.875rem' }}>
+                      <Lightbulb style={{ width: '13px', height: '13px', color: C.red }} />
+                      <span style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: C.muted }}>
+                        Principle of the Day
+                      </span>
+                      <div style={{ flex: 1, height: '1.5px', background: C.border }} />
+                      {principles.length > 1 && (
+                        <button onClick={() => setPrincipleIndex(i => (i + 1) % principles.length)} style={{ background: 'transparent', border: `1.5px solid ${C.border}`, color: C.muted, padding: '0.2rem 0.5rem', fontSize: '0.55rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                          Next <ChevronRight style={{ width: '9px', height: '9px' }} />
+                        </button>
+                      )}
+                    </div>
+                    <p style={{ fontSize: '0.875rem', color: C.fg, lineHeight: 1.7, fontStyle: 'italic', paddingLeft: '1.375rem', borderLeft: `3px solid ${C.red}` }}>
+                      "{currentPrinciple}"
+                    </p>
+                    <p style={{ fontSize: '0.55rem', color: C.muted, marginTop: '0.5rem', paddingLeft: '1.375rem' }}>
+                      {principleIndex + 1} of {principles.length} principles
+                    </p>
+                  </div>
+                )}
               </div>
             )}
 
@@ -258,6 +306,20 @@ export default function Home() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                 <SectionHeader label="Skills & Academia" />
                 <SkillAcademiaTracker />
+              </div>
+            )}
+
+            {activeTab === "vision" && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                <SectionHeader label="Meta Vision — Puzzle Map" />
+                <PuzzleMap />
+              </div>
+            )}
+
+            {activeTab === "mindset" && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                <SectionHeader label="Mindset Systems" />
+                <QualityTracker />
               </div>
             )}
 
@@ -322,6 +384,12 @@ export default function Home() {
 
       {/* AI Assistant */}
       <AIAssistant />
+
+      {/* Pain Button — Dalio Method */}
+      <PainButton />
+
+      {/* System Failure Alert — Deadman's Switch */}
+      <SystemFailureAlert />
     </main>
   )
 }
