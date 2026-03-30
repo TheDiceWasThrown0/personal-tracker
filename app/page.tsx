@@ -9,18 +9,16 @@ import StatusDashboard from "@/components/StatusDashboard"
 import { RoadmapTimeline } from "@/components/RoadmapTimeline"
 import { DailyRoutine } from "@/components/DailyRoutine"
 import GymTracker from "@/components/GymTracker"
-import { CookieTracker } from "@/components/CookieTracker"
 import LockScreen from "@/components/LockScreen"
 import { CalendarSystem } from "@/components/CalendarSystem"
 import { DailySchedule } from "@/components/DailySchedule"
 import { GlobalDiary } from "@/components/GlobalDiary"
 import { AIAssistant } from "@/components/AIAssistant"
-import { SkillAcademiaTracker } from "@/components/SkillAcademiaTracker"
 import { PainButton, type PainEntry } from "@/components/PainButton"
 import { QualityTracker, getSevenDayAverage, type QualitySession } from "@/components/QualityTracker"
 import { PuzzleMap } from "@/components/PuzzleMap"
 import { SystemFailureAlert } from "@/components/SystemFailureAlert"
-import { LayoutGrid, Map, Lock, Activity, Cookie, CalendarDays, ListTodo, BookOpen, Menu, X, Brain, Target, Lightbulb, AlertTriangle, ChevronRight } from "lucide-react"
+import { LayoutGrid, Map, Lock, Activity, CalendarDays, ListTodo, Menu, X, Brain, Target, Lightbulb, AlertTriangle, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core'
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
@@ -80,13 +78,13 @@ function SortableTab({ tab, isActive, onClick }: { tab: any; isActive: boolean; 
   )
 }
 
-type Tab = "dashboard" | "routine" | "planner" | "roadmap" | "fitness" | "cookie" | "skills" | "vision" | "mindset"
+type Tab = "dashboard" | "routine" | "planner" | "roadmap" | "fitness" | "vision" | "mindset"
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<Tab>("dashboard")
   const [isUnlocked, setIsUnlocked] = useLocalStorage<boolean>("shijun-access-granted", false)
   const [isMounted, setIsMounted] = useState(false)
-  const [tabsOrder, setTabsOrder] = useSyncedState<string[]>("tabs_order_v3", ["dashboard", "routine", "planner", "roadmap", "fitness", "cookie", "skills", "vision", "mindset"])
+  const [tabsOrder, setTabsOrder] = useSyncedState<string[]>("tabs_order_v4", ["dashboard", "routine", "planner", "roadmap", "fitness", "vision", "mindset"])
   const [qualityData] = useSyncedState<{ sessions: QualitySession[] }>("quality_scores_v1", { sessions: [] })
   const [painData] = useSyncedState<{ entries: PainEntry[] }>("pain_entries_v1", { entries: [] })
   const [principleIndex, setPrincipleIndex] = useState(0)
@@ -112,8 +110,6 @@ export default function Home() {
     planner:   { id: "planner",   label: "Planner",           icon: CalendarDays },
     roadmap:   { id: "roadmap",   label: "Path",              icon: Map         },
     fitness:   { id: "fitness",   label: "Fitness",           icon: Activity    },
-    cookie:    { id: "cookie",    label: "Cookies",           icon: Cookie      },
-    skills:    { id: "skills",    label: "Skills",            icon: BookOpen    },
     vision:    { id: "vision",    label: "Vision Map",        icon: Target      },
     mindset:   { id: "mindset",   label: "Mindset",           icon: Brain       },
   }
@@ -293,19 +289,6 @@ export default function Home() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                 <SectionHeader label="Bio-Infrastructure" />
                 <GymTracker />
-              </div>
-            )}
-
-            {activeTab === "cookie" && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', padding: '0.5rem 0 6rem' }}>
-                <CookieTracker />
-              </div>
-            )}
-
-            {activeTab === "skills" && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-                <SectionHeader label="Skills & Academia" />
-                <SkillAcademiaTracker />
               </div>
             )}
 
