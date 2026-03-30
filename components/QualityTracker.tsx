@@ -64,17 +64,24 @@ export function QualityTracker() {
     }
   }
 
+  // Confirm "Why Not 10" → saves the session immediately, closes both modals
   const confirmWhy = () => {
-    if (!whyNotTen.trim()) return
-    setScore(pendingScore)
-    setShowWhy(false)
+    if (!whyNotTen.trim() || pendingScore === null) return
+    const session: QualitySession = {
+      id: `qs_${Date.now()}`, date: todayDate, category, score: pendingScore,
+      whyNotTen: whyNotTen.trim(),
+      createdAt: new Date().toISOString(),
+    }
+    setData(prev => ({ sessions: [session, ...(prev?.sessions ?? [])] }))
+    setShowWhy(false); setShowLog(false)
+    setScore(null); setPendingScore(null); setWhyNotTen(""); setCategory('Gym')
   }
 
+  // Save for score = 10 only (no why needed)
   const save = () => {
     if (score === null) return
     const session: QualitySession = {
       id: `qs_${Date.now()}`, date: todayDate, category, score,
-      whyNotTen: score < 10 ? whyNotTen : undefined,
       createdAt: new Date().toISOString(),
     }
     setData(prev => ({ sessions: [session, ...(prev?.sessions ?? [])] }))
